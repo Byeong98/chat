@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -73,6 +76,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = "config.asgi.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [{
+                'address': f"redis://{config('REDIS_ADDRESS')}:{config('REDIS_PORT')}",
+                'password': config('REDIS_PASSWORD'),
+            }],
+        },
+    }
+}
 
 
 # Database
@@ -84,6 +99,9 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+MEDIA_URL = '/media/'  # 미디어 파일 접근 URL
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Password validation
@@ -105,6 +123,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+}
 
 
 # Internationalization
@@ -135,12 +160,4 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
-}
-
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    "ROTATE_REFRESH_TOKENS": False,
-    "BLACKLIST_AFTER_ROTATION": False,
 }
