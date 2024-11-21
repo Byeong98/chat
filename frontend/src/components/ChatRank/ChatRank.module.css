@@ -1,0 +1,27 @@
+.chat_list_container {
+    border: 1px solid ;
+    border-radius: 5px;
+    background-color: #ffffff;
+    width: 30%;
+}
+
+.chat_title{
+    color: #ffffff;
+    border-radius: 5px;
+    background-color: rgba(32,32, 32, 0.5);
+    margin: 5px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat_room{
+    margin: 5px;
+    border: 1px solid ;
+    border-radius: 5px;
+    height: 40px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}

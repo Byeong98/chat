@@ -1,0 +1,11 @@
+.home_create_room_button{
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.home_list_container {
+    display: flex;
+    justify-content: space-between;
+    height: 700px;
+}
