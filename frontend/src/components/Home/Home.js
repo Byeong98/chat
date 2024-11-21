@@ -5,7 +5,7 @@ import style from './Home.module.css'
 
 const home = () => {
     return (
-        <div>
+        <div className={style.home_container}>
             <div className={style.home_create_room_button}>
                 <input type='button' value='채팅방 생성'></input>
             </div>

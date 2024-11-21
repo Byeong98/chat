@@ -1,3 +1,7 @@
+.home_container{
+    width: 100%;
+}
+
 .home_create_room_button{
     display: flex;
     justify-content: flex-end;
