@@ -46,7 +46,6 @@ const Login = () => {
                     value='회원가입' 
                 />
             </div>
-
         </div>
 
     );
