@@ -7,6 +7,11 @@ body {
   overflow: hidden;
 }
 
+input[type="button"]:hover {
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.1);
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
