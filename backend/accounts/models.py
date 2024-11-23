@@ -6,7 +6,6 @@ class User(AbstractUser):
     username = models.CharField("닉네임", max_length=50, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
-    add_date = models.DateTimeField(auto_now_add=True)
 
     # USERNAME_FIELD를 이메일로 변경
     USERNAME_FIELD = 'email'
