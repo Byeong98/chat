@@ -19,11 +19,10 @@ const Login = () => {
                 email: data.email,
                 password: data.password
             })
-            const {access, refresh} = response.data            
-            localStorage.setItem('accessToken', access)
-            localStorage.setItem('refreshToken', refresh)
-            // navigate('/')
-            console.log(access, refresh)
+            // const {access, refresh} = response.data            
+            // localStorage.setItem('accessToken', access)
+            // localStorage.setItem('refreshToken', refresh)
+            console.log(response.data)
         } catch (error) {
             console.log('error', error);
         }

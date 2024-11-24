@@ -36,16 +36,16 @@ class AccountsAPIView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         
 
-class Login_View(TokenObtainPairView):
-    def post(self, request,*args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        email = request.data.get('email')
-        user = User.objects.get(email=email)
+# class Login_View(TokenObtainPairView):
+#     def post(self, request,*args, **kwargs):
+#         response = super().post(request, *args, **kwargs)
+#         email = request.data.get('email')
+#         user = User.objects.get(email=email)
 
-        data = f"{user.username}:{user.id}"
-        rd.sadd('current_users', json.dumps(data))
+#         data = f"{user.username}:{user.id}"
+#         rd.sadd('current_users', json.dumps(data))
 
-        return response
+#         return response
     
 
 # class get_logged_in_users(APIView):
@@ -58,14 +58,29 @@ class Login_View(TokenObtainPairView):
 #         return Response({'count':len(user_data),'users': user_data})
     
 
-from django.contrib.auth import authenticate, login
-from rest_framework.decorators import api_view
+
+#sesstion 기반 로그인
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.sessions.models import Session
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt  
 
+class LoginAPIView(APIView):
+    def post(self, request):
+        data = request.data
+        email = data.get('email')
+        password = data.get('password')
 
-class get_logged_in_users(APIView):
+        user = authenticate(request, email=email, password=password)
+        login(request, user)
+
+        return Response({'message': '로그인 완료','user_name':user.username}, status=status.HTTP_200_OK)
+    
+class LogoutAPIView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({'message': '로그아웃'}, status=status.HTTP_200_OK)
+
+class get_logged_in_usersAPIView(APIView):
     # permission_classes=[AllowAny]
     def get(self, request):
         # 모든 활성 세션 가져오기

@@ -6,7 +6,7 @@ const baseURL = 'http://localhost:8000/';
 // Axios 인스턴스 생성
 const apiClient = axios.create({
     baseURL: baseURL,
-    timeout: 10000, // 요청 타임아웃
+    timeout: 10000, // 요청 타임아웃 
 })
 
 // 요청 인터셉터
