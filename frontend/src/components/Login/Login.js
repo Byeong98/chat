@@ -23,6 +23,7 @@ const Login = () => {
             // localStorage.setItem('accessToken', access)
             // localStorage.setItem('refreshToken', refresh)
             console.log(response.data)
+            navigate('/',{user:data.user_name})
         } catch (error) {
             console.log('error', error);
         }
