@@ -25,12 +25,13 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     path('api/chat/', include('chat.urls')),
+    path('silk/', include('silk.urls', namespace='silk')),
 ] 
 
-urlpatterns += [
-    path("login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-]
+# urlpatterns += [
+#     path("api/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+#     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+# ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
