@@ -5,9 +5,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from .models import *
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
+from decouple import config
 import redis
 import json
-from decouple import config
 
 rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
@@ -64,16 +64,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 
+
 class LoginAPIView(APIView):
     def post(self, request):
         data = request.data
         email = data.get('email')
         password = data.get('password')
-
         user = authenticate(request, email=email, password=password)
-        login(request, user)
 
-        return Response({'message': '로그인 완료','user_name':user.username}, status=status.HTTP_200_OK)
+        login(request, user)
+        
+        return Response({'message': '로그인 완료','user':{'username':user.username, 'user_id':user.id}}, status=status.HTTP_200_OK)
     
 class LogoutAPIView(APIView):
     def post(self, request):

@@ -4,11 +4,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import *
+from decouple import config
+import redis
+import json
 
-# Create your views here.
+rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
 class ChatRoomList(APIView):
-    permission_classes=[AllowAny]
+    # permission_classes=[AllowAny]
 
     def get(self, request):
         chat_rooms = ChatRoom.objects.all()
@@ -23,4 +26,10 @@ class ChatRoomList(APIView):
             rooms.append(data)
 
         return Response({"chat_rooms":data}, status=status.HTTP_200_OK)
-    
+
+
+class ConnectedUsers(APIView):
+    def get(self, request, roomname):
+        rd_users = rd.smembers(f'chat_{roomname}_users')
+        users = [json.loads(user) for user in rd_users]
+        return  Response({"users":users}, status=status.HTTP_200_OK)
