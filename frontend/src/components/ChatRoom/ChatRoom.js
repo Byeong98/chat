@@ -1,19 +1,22 @@
-import React, { useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState, useContext} from 'react';
 import styles from './ChatRoom.module.css'
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation} from 'react-router-dom';
+import { AuthContext } from '../../AuthContext';
 
 
 const ChatRoom = () => {
     const chatSocketRef = useRef(null);
     const [messages, setMessages] = useState([]);
     const navigate = useNavigate();
-    const user = 'admin'
+    const { userName } = useContext(AuthContext);
+    const location = useLocation();
+    const roomName = location.state.roomName;
 
     useEffect(() => {
         const socket = new WebSocket(
-            'ws://127.0.0.1:8000/ws/chat/' + 'admin' + '/'+ `?user=${user}`);
+            'ws://127.0.0.1:8000/ws/chat/' + `${roomName}` + '/'+ `?user=${userName}`);
         chatSocketRef.current = socket;
 
         socket.onopen = () => {
@@ -48,7 +51,7 @@ const ChatRoom = () => {
             return;
         }
 
-        const sender_user = user;
+        const sender_user = userName;
 
         // 메시지 전송
         chatSocketRef.current.send(
@@ -68,7 +71,7 @@ const ChatRoom = () => {
 
 
     const handleHome = () => {
-        navigate('/',{ state: { userName: user } })
+        navigate('/')
     };
     
     
@@ -90,7 +93,7 @@ const ChatRoom = () => {
                         {/* 메시지 표시 */}
                         {messages.map((message, index) => (
                             <div key={index}>
-                                {message.sender_user === 'admin'?
+                                {message.sender_user === userName?
                                 <p style={{textAlign:'right'}}>
                                     {message.sender_user} : {message.message}</p>
                                 :

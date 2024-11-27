@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css'
 // import apiClient from '../../apiClient';
 import axios from 'axios';
-
+import { AuthContext } from '../../AuthContext'
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setUserName } = useContext(AuthContext);
+
 
     function getCookie(name) {
         var cookieValue = null;
@@ -31,7 +33,7 @@ const Login = () => {
     })
 
     //로그인 api 요청
-    const handleSubmit = async () => {
+    const handleLogin = async () => {
         try {
             const response = await axios.post(
                 'http://localhost:8000/api/accounts/login/',
@@ -48,8 +50,9 @@ const Login = () => {
             // const {access, refresh} = response.data            
             // localStorage.setItem('accessToken', access)
             // localStorage.setItem('refreshToken', refresh)
-            console.log(response.data)
-            navigate('/',{ state: { userName: response.data.user } })
+            localStorage.setItem('CurrentUser',response.data.user.username )
+            setUserName(response.data.user.username);
+            navigate('/')
         } catch (error) {
             console.log('error', error);
         }
@@ -90,7 +93,7 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit" className={styles.login_button} onClick={handleSubmit}>
+                <button type="submit" className={styles.login_button} onClick={handleLogin}>
                     로그인
                 </button>
             </div>

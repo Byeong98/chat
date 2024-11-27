@@ -25,7 +25,23 @@ class ChatRoomList(APIView):
             }
             rooms.append(data)
 
-        return Response({"chat_rooms":data}, status=status.HTTP_200_OK)
+        return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
+
+class ChatRoomRank(APIView):
+    # permission_classes=[AllowAny]
+
+    def get(self, request):
+        chat_rooms = ChatRoom.objects.annotate(user_count=models.Count('users')).order_by('-user_count')
+        
+        rooms=[]
+        for room in chat_rooms:
+            data ={
+                "name": room.name,
+                "users": room.users.count(),
+                "add_date" : room.add_date,
+            }
+            rooms.append(data)
+        return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
 
 
 class ConnectedUsers(APIView):
