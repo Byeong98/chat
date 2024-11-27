@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css'
 // import apiClient from '../../apiClient';
 import axios from 'axios';
-
+import { AuthContext } from '../../AuthContext'
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setUserName } = useContext(AuthContext);
+
 
     function getCookie(name) {
         var cookieValue = null;
@@ -48,8 +50,8 @@ const Login = () => {
             // const {access, refresh} = response.data            
             // localStorage.setItem('accessToken', access)
             // localStorage.setItem('refreshToken', refresh)
-            console.log(response.data)
-            navigate('/',{ state: { userName: response.data.user } })
+            setUserName(response.data.user.username);
+            navigate('/')
         } catch (error) {
             console.log('error', error);
         }
