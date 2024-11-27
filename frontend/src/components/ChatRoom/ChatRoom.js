@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState} from 'react';
 import styles from './ChatRoom.module.css'
-import { useParams } from 'react-router-dom';
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
+import { useNavigate } from 'react-router-dom';
 
 
 const ChatRoom = () => {
-    const { roomName } = useParams();
     const chatSocketRef = useRef(null);
     const [messages, setMessages] = useState([]);
+    const navigate = useNavigate();
     const user = 'admin'
 
     useEffect(() => {
@@ -59,8 +59,19 @@ const ChatRoom = () => {
         textInput.value = '';
         imageInput.value = '';
     };
-    
 
+    const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    };
+
+
+    const handleHome = () => {
+        navigate('/',{ state: { userName: user } })
+    };
+    
+    
     return (
         <div className={styles.chat_room_container}>
             <div className={styles.chat_room_out}>
@@ -69,6 +80,7 @@ const ChatRoom = () => {
                     className={styles.chat_room_out_button}
                     type="button"
                     value="나가기"
+                    onClick={handleHome}
                 />
             </div>
             <div className={styles.chat_container}>
@@ -100,6 +112,7 @@ const ChatRoom = () => {
                             id="chat-image-input"
                             accept="image/*"
                             type="file"
+                            onKeyDown={handleKeyPress} 
                         />
                         <input
                             className={styles.chat_message_input}
@@ -108,6 +121,7 @@ const ChatRoom = () => {
                             maxLength="50"
                             placeholder="메시지를 입력하세요"
                             aria-label="메시지 입력"
+                            onKeyDown={handleKeyPress} 
                         />
                         <input
                             className={styles.chat_message_submit}

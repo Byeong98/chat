@@ -1,25 +1,29 @@
-import React,{ useState, useEffect }  from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CurrentUser.module.css';
 import apiClient from '../../apiClient';
+import axios from 'axios';
 
 const CurrentUser = () => {
     const navigate = useNavigate();
-    const [data, setData] = useState('')
+    const [data, setData] = useState([])
+    const roomName = 'admin'
 
-    // useEffect(() => {
-    //     const checkLogin = async () => {
-    //         try {
-    //             const response = await apiClient.get('api/accounts/logged/');
-    //             console.log('Login status:', response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching login status:', error);
-    //         }
-    //     };
-    //     checkLogin();
-    // }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(
+                    `http://localhost:8000/api/chat/${roomName}/users/`
+                );
+                console.log(response.data);
+                setData(response.data.users)
+            } catch (error) {
+                console.log('error', error);
+            }
+        };
 
-
+        fetchData(); // 비동기 함수 호출
+    }, [roomName]);
 
     return (
         <div className={styles.current_user_container}>
@@ -28,18 +32,11 @@ const CurrentUser = () => {
             </div>
             {/* 리스트 뽑아서 가져오기 */}
             <div className={styles.user_container}>
-                <div className={styles.user_name}>
-                    <p>유저이름</p>
-                </div>
-                <div className={styles.user_name}>
-                    <p>유저이름</p>
-                </div>
-                <div className={styles.user_name}>
-                    <p>유저이름</p>
-                </div>
-                <div className={styles.user_name}>
-                    <p>유저이름</p>
-                </div>
+                {data.map((username, index) => (
+                    <div key={index} className={styles.user_name}>
+                        <p>{username}</p>
+                    </div>
+                ))}
             </div>
         </div>
     );

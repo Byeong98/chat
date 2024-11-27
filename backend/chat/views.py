@@ -30,6 +30,6 @@ class ChatRoomList(APIView):
 
 class ConnectedUsers(APIView):
     def get(self, request, roomname):
-        rd_users = rd.smembers(f'chat_{roomname}_users')
-        users = [json.loads(user) for user in rd_users]
+        room = ChatRoom.objects.get(name=f'chat_{roomname}')
+        users = [user.username for user in room.users.all()]
         return  Response({"users":users}, status=status.HTTP_200_OK)
