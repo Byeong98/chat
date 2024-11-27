@@ -33,7 +33,7 @@ const Login = () => {
     })
 
     //로그인 api 요청
-    const handleSubmit = async () => {
+    const handleLogin = async () => {
         try {
             const response = await axios.post(
                 'http://localhost:8000/api/accounts/login/',
@@ -50,6 +50,7 @@ const Login = () => {
             // const {access, refresh} = response.data            
             // localStorage.setItem('accessToken', access)
             // localStorage.setItem('refreshToken', refresh)
+            localStorage.setItem('CurrentUser',response.data.user.username )
             setUserName(response.data.user.username);
             navigate('/')
         } catch (error) {
@@ -92,7 +93,7 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit" className={styles.login_button} onClick={handleSubmit}>
+                <button type="submit" className={styles.login_button} onClick={handleLogin}>
                     로그인
                 </button>
             </div>

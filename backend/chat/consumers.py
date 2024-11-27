@@ -18,7 +18,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         
         #같은 이름의 채팅방이 있는지 확인 및 생성
         self.room_group_name = f"chat_{self.room_name}"
-        self.chat_room = await self.get_or_create_room(self.room_group_name,self.user)
+        self.chat_room = await self.get_or_create_room(self.room_name,self.user)
         
         #현재 채널을 그룹에 추가 + 연결 수락
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -27,10 +27,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
         #사용자 삭제
-        self.delete_user(self.room_group_name,self.user)
-        users = self.get_room_users(self.room_group_name)
+        self.delete_user(self.room_name,self.user)
+        users = self.get_room_users(self.room_name)
         if users:
-            await self.delete_room(self.room_group_name)
+            await self.delete_room(self.room_name)
         
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 

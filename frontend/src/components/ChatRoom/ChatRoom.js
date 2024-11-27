@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useContext} from 'react';
 import styles from './ChatRoom.module.css'
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation} from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
 
 
@@ -10,11 +10,13 @@ const ChatRoom = () => {
     const chatSocketRef = useRef(null);
     const [messages, setMessages] = useState([]);
     const navigate = useNavigate();
-    const { userName } = useContext(AuthContext)
+    const { userName } = useContext(AuthContext);
+    const location = useLocation();
+    const roomName = location.state.roomName;
 
     useEffect(() => {
         const socket = new WebSocket(
-            'ws://127.0.0.1:8000/ws/chat/' + 'admin' + '/'+ `?user=${userName}`);
+            'ws://127.0.0.1:8000/ws/chat/' + `${roomName}` + '/'+ `?user=${userName}`);
         chatSocketRef.current = socket;
 
         socket.onopen = () => {

@@ -25,7 +25,7 @@ const ChatList = () => {
     }, []);
 
     const handleChatRomm = (roomName) =>{
-        navigate(`/chat/${roomName}`)
+        navigate(`/chat/${roomName}`, {state : {roomName: roomName}})
     }
 
     return (
