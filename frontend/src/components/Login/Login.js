@@ -9,7 +9,6 @@ const Login = () => {
     const navigate = useNavigate();
     const { setUserName } = useContext(AuthContext);
 
-
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -93,9 +92,10 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit" className={styles.login_button} onClick={handleLogin}>
-                    로그인
-                </button>
+                <input type="button" 
+                        className={styles.login_button} 
+                        value='로그인'
+                        onClick={handleLogin}/>
             </div>
             <div className={styles.signup_container}>
                 <hr />
@@ -103,6 +103,7 @@ const Login = () => {
                     className={styles.login_button}
                     type='button'
                     value='회원가입'
+                    onClick={()=>navigate('/signup')}
                 />
             </div>
         </div>
