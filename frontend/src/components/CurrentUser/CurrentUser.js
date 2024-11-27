@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styles from './CurrentUser.module.css';
 import apiClient from '../../apiClient';
 import axios from 'axios';
 
 const CurrentUser = () => {
-    const navigate = useNavigate();
     const [data, setData] = useState([])
     const roomName = 'admin'
 

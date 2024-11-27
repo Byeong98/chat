@@ -25,7 +25,7 @@ class ChatRoomList(APIView):
             }
             rooms.append(data)
 
-        return Response({"chat_rooms":data}, status=status.HTTP_200_OK)
+        return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
 
 
 class ConnectedUsers(APIView):
