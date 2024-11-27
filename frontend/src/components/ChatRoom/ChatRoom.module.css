@@ -25,3 +25,64 @@
     justify-content: space-between;
     height: 700px;
 }
+
+
+/* 채팅 컨테이너  */
+.chatting_container {
+    width: 68%;
+}
+
+.chat_content_container {
+    border: 1px solid ;
+    border-radius: 5px;
+    background-color: #ffffff;
+    height: 93%;
+}
+
+
+.chat_input_container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    height: 5%;
+}
+
+.chat_image_input{
+    display: none;
+}
+
+.chat_image_label{
+    width: 13%;
+    height: 100%;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box; 
+}
+
+.chat_image_label:hover{
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.chat_message_input{
+    width: 70%;
+    height: 100%;
+    padding-left: 10px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.chat_message_submit{
+    width: 13%;
+    height: 100%;
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: #ffffff;
+}
+
