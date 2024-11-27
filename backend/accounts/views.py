@@ -12,7 +12,7 @@ import json
 rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
 class AccountsAPIView(APIView):
-    permission_classes=[AllowAny]
+    # permission_classes=[AllowAny]
 
     def post(self, request):
         data = request.data
@@ -22,17 +22,17 @@ class AccountsAPIView(APIView):
 
         if not username or not email or not password:
             return Response(
-                {"error": "모든 필드를 입력해 주세요."},
+                {"message": "모든 필드를 입력해 주세요."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         
         try:
             User.objects.create_user(username, email, password)
-            return Response({"message": "회원가입이 완료됬었습니다.",
+            return Response({"message": "회원가입이 완료됐습니다.",
                         "username" : username},
-                        status=status.HTTP_400_BAD_REQUEST)
+                        status=status.HTTP_201_CREATED)
         except:
-            return Response({"error": "닉네임 또는 이메일이 중복입니다."},
+            return Response({"message": "닉네임 또는 이메일이 중복입니다."},
                             status=status.HTTP_400_BAD_REQUEST)
         
 

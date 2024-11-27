@@ -4,7 +4,7 @@ import { AuthProvider } from './AuthContext';
 import Home from './components/Home/Home';
 import Login from './components/Login/Login';
 import ChatRoom from './components/ChatRoom/ChatRoom';
-import SignUp from './components/SingUp/SignUp';
+import SignUp from './components/SignUp/SignUp';
 import PrivateRoute from './PrivateRoute';
 
 function App() {
