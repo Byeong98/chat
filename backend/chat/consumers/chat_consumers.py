@@ -2,7 +2,7 @@ import json
 import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import *
+from ..models import *
 from decouple import config
 import urllib.parse
 import base64
@@ -84,6 +84,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def get_or_create_room(self,room_id, user):
         room, created = ChatRoom.objects.get_or_create(id=room_id)
         room.users.add(user)
+        print(room)
         return room
     
     #해당채팅방에 있는 유저 확인하기

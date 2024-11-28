@@ -24,8 +24,8 @@ const ChatRank = () => {
         fetchData(); // 비동기 함수 호출
     }, []);
 
-    const handleChatRomm = (roomName) =>{
-        navigate(`/chat/${roomName}`, {state : {roomName: roomName}})
+    const handleChatRomm = (roomId) =>{
+        navigate(`/chat/${roomId}`, {state : {roomId: roomId}})
     }
 
     return (
@@ -38,7 +38,7 @@ const ChatRank = () => {
                 {data.map((room, index) => (
                     <div key={index} 
                         className={styles.chat_room} 
-                        onClick={()=>handleChatRomm(room.name)}>
+                        onClick={()=>handleChatRomm(room.id)}>
                         <p>{room.name}</p>
                         <p>인원 : {room.users}</p>
                     </div>

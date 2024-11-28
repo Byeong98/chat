@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.shortcuts import get_list_or_404, get_object_or_404
 from .models import *
 from decouple import config
 import redis
@@ -34,6 +35,7 @@ class ChatRoomList(APIView):
             for room in chat_rooms:
                 data ={
                     "name": room.name,
+                    "id":room.id,
                     "users": room.users.count(),
                     "add_date" : room.add_date,
                 }
@@ -52,6 +54,7 @@ class ChatRoomRank(APIView):
             for room in chat_rooms:
                 data ={
                     "name": room.name,
+                    "id":room.id,
                     "users": room.users.count(),
                     "add_date" : room.add_date,
                 }
@@ -61,6 +64,9 @@ class ChatRoomRank(APIView):
 
 class ConnectedUsers(APIView):
     def get(self, request, room_id):
-        room = ChatRoom.objects.get(id=room_id)
-        users = [user.username for user in room.users.all()]
+        room = get_object_or_404(ChatRoom,id=room_id)
+        users = []
+        if room.users.exists():
+            for user in room.users.all():
+                users.append(user.username)
         return  Response({"users":users}, status=status.HTTP_200_OK)

@@ -28,6 +28,7 @@ const ChatRoom = () => {
     };
 
     useEffect(() => {
+
         const socket = new WebSocket(
             'ws://127.0.0.1:8000/ws/chat/' + `${roomId}` + '/' + `?user=${userName}`);
         chatSocketRef.current = socket;
