@@ -14,7 +14,6 @@ const ChatList = () => {
                 const response = await axios.get(
                     `http://localhost:8000/api/chat/list/`
                 );
-                console.log(response.data.chat_rooms);
                 setData(response.data.chat_rooms)
             } catch (error) {
                 console.log('error', error);

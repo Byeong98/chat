@@ -1,22 +1,35 @@
-import React, { useEffect, useRef, useState, useContext} from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import styles from './ChatRoom.module.css'
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
-import { useNavigate, useLocation} from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
+import axios from 'axios';
 
 
 const ChatRoom = () => {
     const chatSocketRef = useRef(null);
     const [messages, setMessages] = useState([]);
     const navigate = useNavigate();
+    const [currentUsers, setCurrentUsers] = useState([]);
     const { userName } = useContext(AuthContext);
     const location = useLocation();
-    const roomName = location.state.roomName;
+    const roomId = location.state.roomId;
+
+    const fetchCurrentUsers = async () => {
+        try {
+            const response = await axios.get(
+                `http://localhost:8000/api/chat/${roomId}/users/`
+            );
+            setCurrentUsers(response.data.users); // 접속자 목록 업데이트
+        } catch (error) {
+            console.error('접속자 정보를 가져오는 중 오류 발생:', error);
+        }
+    };
 
     useEffect(() => {
         const socket = new WebSocket(
-            'ws://127.0.0.1:8000/ws/chat/' + `${roomName}` + '/'+ `?user=${userName}`);
+            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}` + '/' + `?user=${userName}`);
         chatSocketRef.current = socket;
 
         socket.onopen = () => {
@@ -32,13 +45,18 @@ const ChatRoom = () => {
         };
 
         socket.onmessage = (event) => {
-            setMessages((prev) => [...prev, JSON.parse(event.data)]);
+            const newMessage = JSON.parse(event.data);
+            setMessages((prev) => [...prev, newMessage]);
+
+            if (newMessage.sender_user === 0) {
+                fetchCurrentUsers(); // 접속자 목록 다시 가져오기
+            }
         };
 
         return () => {
             socket.close(); // 컴포넌트 언마운트 시 WebSocket 닫기
         };
-    }, []);
+    }, [roomId, userName]);
 
     const sendMessage = () => {
         const textInput = document.getElementById('chat-message-input');
@@ -73,8 +91,8 @@ const ChatRoom = () => {
     const handleHome = () => {
         navigate('/')
     };
-    
-    
+
+
     return (
         <div className={styles.chat_room_container}>
             <div className={styles.chat_room_out}>
@@ -87,19 +105,25 @@ const ChatRoom = () => {
                 />
             </div>
             <div className={styles.chat_container}>
-                <CurrentUser />
+                <CurrentUser users={currentUsers} />
                 <div className={styles.chatting_container}>
                     <div className={styles.chat_content_container}>
                         {/* 메시지 표시 */}
                         {messages.map((message, index) => (
                             <div key={index}>
-                                {message.sender_user === userName?
-                                <p style={{textAlign:'right'}}>
-                                    {message.sender_user} : {message.message}</p>
-                                :
-                                <p style={{textAlign:'left'}}>
-                                    {message.sender_user} : {message.message}</p>
-                                }
+                                {message.sender_user === 0 ? (
+                                    <p style={{ textAlign: 'center' }}>
+                                        {message.message}
+                                    </p>
+                                ) : message.sender_user === userName ? (
+                                    <p style={{ textAlign: 'right' }}>
+                                        {message.sender_user} : {message.message}
+                                    </p>
+                                ) : (
+                                    <p style={{ textAlign: 'left' }}>
+                                        {message.sender_user} : {message.message}
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -115,7 +139,7 @@ const ChatRoom = () => {
                             id="chat-image-input"
                             accept="image/*"
                             type="file"
-                            onKeyDown={handleKeyPress} 
+                            onKeyDown={handleKeyPress}
                         />
                         <input
                             className={styles.chat_message_input}
@@ -124,7 +148,7 @@ const ChatRoom = () => {
                             maxLength="50"
                             placeholder="메시지를 입력하세요"
                             aria-label="메시지 입력"
-                            onKeyDown={handleKeyPress} 
+                            onKeyDown={handleKeyPress}
                         />
                         <input
                             className={styles.chat_message_submit}
