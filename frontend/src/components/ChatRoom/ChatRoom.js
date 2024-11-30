@@ -16,17 +16,6 @@ const ChatRoom = () => {
     const location = useLocation();
     const roomId = location.state.roomId;
 
-    const fetchCurrentUsers = async () => {
-        try {
-            const response = await axios.get(
-                `http://localhost:8000/api/chat/${roomId}/users/`
-            );
-            setCurrentUsers(response.data.users); // 접속자 목록 업데이트
-        } catch (error) {
-            console.error('접속자 정보를 가져오는 중 오류 발생:', error);
-        }
-    };
-
     useEffect(() => {
 
         const socket = new WebSocket(
@@ -47,10 +36,11 @@ const ChatRoom = () => {
 
         socket.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
-            setMessages((prev) => [...prev, newMessage]);
-
-            if (newMessage.sender_user === 0) {
-                fetchCurrentUsers(); // 접속자 목록 다시 가져오기
+            
+            if (newMessage.users) {
+                setCurrentUsers(newMessage.users);  
+            } else{
+                setMessages((prev) => [...prev, newMessage]);
             }
         };
 

@@ -5,7 +5,6 @@ import axios from 'axios';
 
 const CurrentUser = ({users}) => {
 
-
     return (
         <div className={styles.current_user_container}>
             <div className={styles.current_user_title}>
