@@ -3,6 +3,11 @@
     border-radius: 5px;
     background-color: #ffffff;
     width: 30%;
+    overflow: auto;
+}
+
+.current_user_container::-webkit-scrollbar {
+    display: none;
 }
 
 .current_user_title{
