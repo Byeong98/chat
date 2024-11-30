@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,10 +7,12 @@ from .models import *
 from decouple import config
 import redis
 import json
+from .chat_redis import get_users_from_redis
+
 
 rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
-class ChatRoomCreate(APIView):
+class ChatRoomCreateAPIView(APIView):
     def post(self, request):
         data = request.data
         room_name = data.get('roomName')
@@ -24,7 +25,7 @@ class ChatRoomCreate(APIView):
 
 
 
-class ChatRoomList(APIView):
+class ChatRoomListAPIView(APIView):
     # permission_classes=[AllowAny]
 
     def get(self, request):
@@ -43,7 +44,7 @@ class ChatRoomList(APIView):
 
         return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
 
-class ChatRoomRank(APIView):
+class ChatRoomRankAPIView(APIView):
     # permission_classes=[AllowAny]
 
     def get(self, request):
@@ -62,11 +63,15 @@ class ChatRoomRank(APIView):
         return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
 
 
-class ConnectedUsers(APIView):
-    def get(self, request, room_id):
-        room = get_object_or_404(ChatRoom,id=room_id)
-        users = []
-        if room.users.exists():
-            for user in room.users.all():
-                users.append(user.username)
-        return  Response({"users":users}, status=status.HTTP_200_OK)
+# class ConnectedUsersAPIView(APIView):
+#     def get(self, request, room_id):
+#         users_redis = rd.smembers(f"chat_room_id_{room_id}")
+#         users = [user for user in users_redis]
+#         return Response({"users": users}, status=status.HTTP_200_OK)
+    
+# class ConnectedUsersAPIView(APIView):
+#     def get(self, request, room_id):
+#         room = ChatRoom.objects.get(id=room_id)
+#         users = [user.username for user in room.users.all()]
+#         return Response({"users": users}, status=status.HTTP_200_OK)
+
