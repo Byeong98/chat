@@ -29,15 +29,15 @@ class ChatRoomListAPIView(APIView):
     # permission_classes=[AllowAny]
 
     def get(self, request):
-        chat_rooms = ChatRoom.objects.all()
-        
+        chat_rooms = ChatRoom.objects.prefetch_related('users').annotate(user_count=models.Count('users'))
+
         rooms=[]
         if chat_rooms.exists():
             for room in chat_rooms:
                 data ={
                     "name": room.name,
                     "id":room.id,
-                    "users": room.users.count(),
+                    "users": room.user_count,
                     "add_date" : room.add_date,
                 }
                 rooms.append(data)
@@ -48,7 +48,7 @@ class ChatRoomRankAPIView(APIView):
     # permission_classes=[AllowAny]
 
     def get(self, request):
-        chat_rooms = ChatRoom.objects.annotate(user_count=models.Count('users')).order_by('-user_count')
+        chat_rooms = ChatRoom.objects.prefetch_related('users').annotate(user_count=models.Count('users')).order_by('-user_count')
         
         rooms=[]
         if chat_rooms.exists():
