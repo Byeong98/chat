@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext} from 'react';
 import styles from './ChatRoom.module.css'
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
@@ -37,9 +37,11 @@ const ChatRoom = () => {
         socket.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
             
-            console.log(newMessage)
             if (newMessage.users) {
-                setCurrentUsers(newMessage.users);  
+                setCurrentUsers(newMessage.users);
+                newMessage.save_messages.map((message, index)=>{
+                    setMessages((prev) => [...prev, message]);
+                })
             }
             setMessages((prev) => [...prev, newMessage]);
         };
@@ -47,7 +49,7 @@ const ChatRoom = () => {
         return () => {
             socket.close(); // 컴포넌트 언마운트 시 WebSocket 닫기
         };
-    }, [roomId, userName]);
+    }, []);
 
     const sendMessage = () => {
         const textInput = document.getElementById('chat-message-input');
