@@ -3,6 +3,11 @@
     border-radius: 5px;
     background-color: #ffffff;
     width: 68%;
+    overflow: auto;
+}
+
+.chat_list_container::-webkit-scrollbar {
+    display: none;
 }
 
 .chat_title{

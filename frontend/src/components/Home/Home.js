@@ -24,11 +24,18 @@ const Home = () => {
         }
     }
 
-    const handelModal = () => {
+    const handelModal = async () => {
         if (roomName.trim()) {
-            navigate(`/chat/${roomName}`, {state : {roomName: roomName}})
-            setModal(false)
-            setRoomName('')
+            try {
+                const response = await axios.post(
+                    'http://localhost:8000/api/chat/',
+                    {"roomName":roomName});
+                    navigate(`/chat/${response.data.room_id}`, {state : {roomId: response.data.room_id}})
+                    setModal(false);
+                    setRoomName('');
+            } catch (error) {
+                alert(error.response.data.message)
+            }
         } else {
             alert('채팅방 이름을 입력하세요')
         } 
@@ -71,8 +78,8 @@ const Home = () => {
                             placeholder="채팅방 이름 입력"
                             value={roomName}
                             onChange={e => setRoomName(e.target.value)}
+                            maxLength='30'
                             required
-                            
                         />
                         <div>
                             <input

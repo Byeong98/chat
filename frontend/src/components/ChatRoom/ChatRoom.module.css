@@ -37,6 +37,11 @@
     border-radius: 5px;
     background-color: #ffffff;
     height: 93%;
+    overflow: auto;
+}
+
+.chat_content_container::-webkit-scrollbar {
+    display: none;
 }
 
 
