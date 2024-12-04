@@ -105,6 +105,10 @@ CACHES = {
     }
 }
 
+#celery broker연결 redis사용
+CELERY_BROKER_URL = f"redis://:{config('REDIS_PASSWORD')}@{config('REDIS_ADDRESS')}:{config('REDIS_PORT')}/0"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

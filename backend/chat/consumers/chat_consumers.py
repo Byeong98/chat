@@ -5,6 +5,7 @@ from channels.db import database_sync_to_async
 from ..models import *
 import time
 from ..chat_redis import *
+from ..tasks import send_group_users_list_celery
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -32,15 +33,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name,{
                 "type": "chat.update_users",  # 사용자 목록 갱신을 위한 이벤트
-                "users": list(users_redis) # Redis에서 가져온 사용자 목록
+                "users": list(users_redis), # Redis에서 가져온 사용자 목록
+                "message": f'{self.user.username}님이 입장 했습니다.', 
             }
-        )
-
-        await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat.message",
-                    "sender_user": 0,
-                    "message": f'{self.user.username}님이 입장 했습니다.', 
-                    "image": None}
         )
 
         end_time = time.time() - start_time
@@ -88,9 +83,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #채팅방 접속자 디코딩 후 JSON으로 변환
     async def chat_update_users(self, event):
         users = event["users"]
+        message = event["message"]
         users_str = [user.decode('utf-8') for user in users]
         await self.send(text_data=json.dumps({
-                    "users": users_str
+                    "users": users_str,
+                    "message": message,
                     }))
 
 

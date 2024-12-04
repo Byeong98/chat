@@ -37,11 +37,11 @@ const ChatRoom = () => {
         socket.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
             
+            console.log(newMessage)
             if (newMessage.users) {
                 setCurrentUsers(newMessage.users);  
-            } else{
-                setMessages((prev) => [...prev, newMessage]);
             }
+            setMessages((prev) => [...prev, newMessage]);
         };
 
         return () => {
@@ -102,7 +102,7 @@ const ChatRoom = () => {
                         {/* 메시지 표시 */}
                         {messages.map((message, index) => (
                             <div key={index}>
-                                {message.sender_user === 0 ? (
+                                {!message.sender_user ? (
                                     <p style={{ textAlign: 'center' }}>
                                         {message.message}
                                     </p>
