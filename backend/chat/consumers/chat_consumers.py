@@ -27,8 +27,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         #현재 채널을 그룹에 추가 + 연결 수락
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-
+        
         #채팅방 입장 전송
+        save_messages = await self.get_message(self.chat_room)
         users_redis = await get_users_from_redis(self.room_group_name)
         await self.channel_layer.group_send(
             self.room_group_name,{
@@ -37,6 +38,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "message": f'{self.user.username}님이 입장 했습니다.', 
             }
         )
+        await self.send(text_data=json.dumps({
+                    "save_messages":save_messages
+                    }))
 
         end_time = time.time() - start_time
         print(f"{end_time:.5f} 초")
@@ -55,14 +59,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         image = text_data_json.get("image", None)
         
         #메시지 저장
-        # await self.create_message(room_name=self.chat_room,
-        #                             sender_user=self.user,  
-        #                             message=message,    
-        #                             image=image)
+        await self.create_message(room_name=self.chat_room,
+                                    sender_user=self.user,  
+                                    message=message,    
+                                    image=image)
         
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message",
-                    "sender_user": self.username,
+                    "sender_user": self.user.username,
                     "message": message, 
                     "image":image}
         )
@@ -80,6 +84,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "image":image
                     }))
     
+
     #채팅방 접속자 디코딩 후 JSON으로 변환
     async def chat_update_users(self, event):
         users = event["users"]
@@ -104,6 +109,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return room.users.exists()
     
     
+        
+    #사용자 찾기
+    @database_sync_to_async
+    def get_user(self, username):
+        user= User.objects.get(username=username)
+        return user
+
     #메시지를 데이터 베이스에 저장
     @database_sync_to_async
     def create_message(self, room_name, sender_user, message, image):
@@ -113,9 +125,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             content=message,
             image=image,
         )
-        
-    #사용자 찾기
+    
+    
+    #메시지 가져오기
     @database_sync_to_async
-    def get_user(self, username):
-        user= User.objects.get(username=username)
-        return user
+    def get_message(self, room):
+        messages = Message.objects.filter(chat_room=room).order_by('add_date')
+
+        dict_messages =[]
+        for message in messages:
+            dict_messages.append({
+                "sender_user": message.sender_user.username,
+                "message": message.content, 
+                "image": None
+                })
+        return dict_messages
