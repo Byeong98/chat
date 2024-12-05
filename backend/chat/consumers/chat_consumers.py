@@ -35,10 +35,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,{
                 "type": "chat.update_users",  # 사용자 목록 갱신을 위한 이벤트
                 "users": list(users_redis), # Redis에서 가져온 사용자 목록
-                "save_messages": save_messages,
                 "message": f'{self.user.username}님이 입장 했습니다.', 
             }
         )
+        await self.send(text_data=json.dumps({
+                    "save_messages":save_messages
+                    }))
 
         end_time = time.time() - start_time
         print(f"{end_time:.5f} 초")
@@ -87,12 +89,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_update_users(self, event):
         users = event["users"]
         message = event["message"]
-        save_messages = event["save_messages"]
         users_str = [user.decode('utf-8') for user in users]
         await self.send(text_data=json.dumps({
                     "users": users_str,
                     "message": message,
-                    "save_messages": save_messages
                     }))
 
 
@@ -130,7 +130,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #메시지 가져오기
     @database_sync_to_async
     def get_message(self, room):
-        messages = Message.objects.filter(chat_room=room).order_by('-add_date')
+        messages = Message.objects.filter(chat_room=room).order_by('add_date')
 
         dict_messages =[]
         for message in messages:

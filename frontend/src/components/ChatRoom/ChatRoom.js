@@ -14,6 +14,7 @@ const ChatRoom = () => {
     const [currentUsers, setCurrentUsers] = useState([]);
     const { userName } = useContext(AuthContext);
     const location = useLocation();
+    const endOfMessagesRef = useRef(null);
     const roomId = location.state.roomId;
 
     useEffect(() => {
@@ -37,11 +38,13 @@ const ChatRoom = () => {
         socket.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
             
-            if (newMessage.users) {
-                setCurrentUsers(newMessage.users);
+            if (newMessage.save_messages){
                 newMessage.save_messages.map((message, index)=>{
                     setMessages((prev) => [...prev, message]);
                 })
+            }
+            if (newMessage.users) {
+                setCurrentUsers(newMessage.users);
             }
             setMessages((prev) => [...prev, newMessage]);
         };
@@ -80,6 +83,9 @@ const ChatRoom = () => {
         }
     };
 
+    useEffect(() => {
+        endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, [messages]);
 
     const handleHome = () => {
         navigate('/')
@@ -105,18 +111,19 @@ const ChatRoom = () => {
                         {messages.map((message, index) => (
                             <div key={index}>
                                 {!message.sender_user ? (
-                                    <p style={{ textAlign: 'center' }}>
+                                    <p style={{textAlign: 'center', padding: 5}}>
                                         {message.message}
                                     </p>
                                 ) : message.sender_user === userName ? (
-                                    <p style={{ textAlign: 'right' }}>
+                                    <p style={{textAlign: 'right', padding: 5}}>
                                         {message.sender_user} : {message.message}
                                     </p>
                                 ) : (
-                                    <p style={{ textAlign: 'left' }}>
+                                    <p style={{textAlign: 'left', padding: 5}}>
                                         {message.sender_user} : {message.message}
                                     </p>
                                 )}
+                                <div ref={endOfMessagesRef} />
                             </div>
                         ))}
                     </div>
