@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useEffect, } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatList from '../ChatList/ChatList';
 import ChatRank from '../ChatRank/ChatRank';
@@ -8,10 +8,45 @@ import axios from 'axios';
 
 
 const Home = () => {
-    const { userName, setUserName } = useContext(AuthContext)
     const navigate = useNavigate();
+    const { userName, setUserName } = useContext(AuthContext)
     const [modal, setModal] = useState(false);
     const [roomName, setRoomName] = useState('');
+    const chatSocketRef = useRef(null);
+    const [roomList, setsRoomList] = useState([]);
+    const [roomRank, setsRoomRank] = useState([]);
+
+
+    useEffect(() => {
+        const socket = new WebSocket(
+            'ws://127.0.0.1:8000/ws/chat/');
+        chatSocketRef.current = socket;
+
+        socket.onopen = () => {
+            console.log('연결 에러');
+        };
+
+        socket.onclose = () => {
+            console.log('연결 에러');
+        };
+
+        socket.onerror = () => {
+            console.log('연결 에러');
+        };
+
+        socket.onmessage = (event) => {
+            const newMessage = JSON.parse(event.data);
+            
+            console.log(newMessage)
+            setsRoomList(newMessage.room_list);
+            setsRoomRank(newMessage.room_rank);
+        };
+
+        return () => {
+            socket.close(); // 컴포넌트 언마운트 시 WebSocket 닫기
+        };
+    }, []);
+
 
     const handelLogout = async () => {
         try {
@@ -64,8 +99,8 @@ const Home = () => {
                 />
             </div>
             <div className={styles.home_list_container}>
-                <ChatRank />
-                <ChatList />
+                <ChatRank roomRank={roomRank}/>
+                <ChatList roomList={roomList}/>
             </div>
             {modal &&
                 <div className={styles.modal_container}>
