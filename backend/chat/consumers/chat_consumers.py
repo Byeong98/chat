@@ -1,27 +1,26 @@
 import json
-import redis
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from ..models import *
 import time
 from ..chat_redis import *
-from ..tasks import send_group_users_list_celery
+from ..tasks import send_room_list_celery
+from .rooms_consumers import chatroom_list
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        start_time = time.time()
-
         self.query_string = self.scope["query_string"]
         self.room_id = self.scope["url_route"]["kwargs"]["room_name"]
-        
+
         self.username = str(self.query_string).split('=')[1][:-1]
         self.user = await self.get_user(self.username)
 
         #같은 이름의 채팅방이 있는지 확인 및 생성
         self.chat_room = await self.get_or_create_room(self.room_id)
-        self.room_group_name = f"chat_room_id_{self.chat_room.id}"
+        self.room_group_name = f"chat_room_id.{self.chat_room.id}"
 
+        #Redis에 접속자 저장
         await add_user_to_redis(self.room_group_name, self.user.username)
         
         #현재 채널을 그룹에 추가 + 연결 수락
@@ -41,14 +40,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
                     "save_messages":save_messages
                     }))
-
-        end_time = time.time() - start_time
-        print(f"{end_time:.5f} 초")
+        
+        #홈화면 초기화
+        self.room_list_redis = await get_list_from_redis()
+        self.room_list_db = await self.chat_room_list()
+        send_room_list_celery.delay(self.room_list_redis,self.room_list_db)
 
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
         #사용자 삭제
         await remove_user_to_redis(self.room_group_name, self.user.username)
+
+        #퇴장 메시지 전송 + 접속자 리스트 갱신
+        users_redis = await get_users_from_redis(self.room_group_name)
+        await self.channel_layer.group_send(
+            self.room_group_name,{
+                "type": "chat.update_users",  # 사용자 목록 갱신을 위한 이벤트
+                "users": list(users_redis), # Redis에서 가져온 사용자 목록
+                "message": f'{self.user.username}님이 퇴장 했습니다.', 
+            }
+        )
         
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
@@ -140,3 +151,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "image": None
                 })
         return dict_messages
+
+
+    @database_sync_to_async
+    def chat_room_list(self):
+        chat_rooms = ChatRoom.objects.all()
+        rooms=[]
+        if chat_rooms.exists():
+            for room in chat_rooms:
+                data ={
+                    "name": room.name,
+                    "id":room.id,
+                    "users": None,
+                }
+                rooms.append(data)
+        return rooms
