@@ -5,7 +5,6 @@ from ..models import *
 import time
 from ..chat_redis import *
 from ..tasks import send_room_list_celery
-from .rooms_consumers import chatroom_list
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -41,10 +40,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "save_messages":save_messages
                     }))
         
-        #홈화면 초기화
-        self.room_list_redis = await get_list_from_redis()
-        self.room_list_db = await self.chat_room_list()
-        send_room_list_celery.delay(self.room_list_redis,self.room_list_db)
+        #홈화면 갱신
+        send_room_list_celery.delay()
 
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
@@ -151,18 +148,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "image": None
                 })
         return dict_messages
-
-
-    @database_sync_to_async
-    def chat_room_list(self):
-        chat_rooms = ChatRoom.objects.all()
-        rooms=[]
-        if chat_rooms.exists():
-            for room in chat_rooms:
-                data ={
-                    "name": room.name,
-                    "id":room.id,
-                    "users": None,
-                }
-                rooms.append(data)
-        return rooms
