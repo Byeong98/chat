@@ -46,7 +46,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
         #사용자 삭제
-        await remove_user_to_redis(self.room_group_name, self.user.username)
+        users_count = await remove_user_to_redis(self.room_group_name, self.user.username)
+
+        if users_count:
+            await self.delete_room(self.chat_room.id)
 
         #퇴장 메시지 전송 + 접속자 리스트 갱신
         users_redis = await get_users_from_redis(self.room_group_name)
@@ -67,10 +70,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         image = text_data_json.get("image", None)
         
         #메시지 저장
-        await self.create_message(room_name=self.chat_room,
+        await self.create_message(chat_room=self.chat_room,
                                     sender_user=self.user,  
                                     message=message,    
-                                    image=image)
+                                    image=None)
         
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message",
@@ -116,8 +119,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         room = ChatRoom.objects.get(id=room_id)
         return room.users.exists()
     
-    
-        
+    #채팅방 삭제
+    @database_sync_to_async
+    def delete_room(self,room_id):
+        room = ChatRoom.objects.get(id=room_id)
+        room.delete()
+
     #사용자 찾기
     @database_sync_to_async
     def get_user(self, username):
@@ -126,14 +133,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     #메시지를 데이터 베이스에 저장
     @database_sync_to_async
-    def create_message(self, room_name, sender_user, message, image):
+    def create_message(self, chat_room, sender_user, message, image):
         Message.objects.create(
-            chat_room=room_name,
+            chat_room=chat_room,
             sender_user=sender_user,
             content=message,
             image=image,
         )
-    
     
     #메시지 가져오기
     @database_sync_to_async
