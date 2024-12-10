@@ -34,21 +34,20 @@ def send_room_list_celery():
                     "users": list_dict.get(str(room.id), 0),
                 })
                 
-
     #{chat_room_id : 접속자 수} 형식으로 변경 + 1~10위 가져오기
     rank_dict ={name.decode('utf-8').split('.')[1]:length
                         for name, length in room_list_redis[:10]}
-    
+
     #딕셔너리 순서에 맞게 가져오기 (ZSET이라 랭킹 순서)
     rank_rooms=[]
     for k in rank_dict:
-            for room in room_list_db:
-                if room.id == int(k):
-                    rank_rooms.append({
-                        "name": room.name,
-                        "id":room.id,
-                        "users": rank_dict.get(str(room.id))
-                    })
+        for room in room_list_db:
+            if room.id == int(k):
+                rank_rooms.append({
+                    "name": room.name,
+                    "id":room.id,
+                    "users": rank_dict.get(str(room.id), 0)
+                })
 
     #홈 랭킹, 리스트 갱신
     async_to_sync(channel_layer.group_send)(

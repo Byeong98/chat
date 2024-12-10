@@ -23,11 +23,11 @@ const Home = () => {
         chatSocketRef.current = socket;
 
         socket.onopen = () => {
-            console.log('연결 에러');
+            console.log('연결 완료');
         };
 
         socket.onclose = () => {
-            console.log('연결 에러');
+            console.log('연결 끝');
         };
 
         socket.onerror = () => {

@@ -21,3 +21,12 @@ class RoomsConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.home, self.channel_name)
         
+
+    async def send_chatroom_list(self, event):
+        room_list= event['room_list']
+        room_rank= event['room_rank']
+
+        await self.send(text_data=json.dumps({
+                    "room_list": room_list,
+                    "room_rank": room_rank,
+                    }))

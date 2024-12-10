@@ -19,9 +19,10 @@ async def add_user_to_redis(key: str, value: str):
 async def remove_user_to_redis(key: str, value: str):
     await redis_client.srem(key, value)
     current_users_count = await redis_client.zincrby('chatroom_ranking', -1, key)
-
+    
     if int(current_users_count) <= 0:
         await redis_client.zrem('chatroom_ranking', key)
+        return True
 
 #모든 접속자 조회
 async def get_users_from_redis(key: str):
