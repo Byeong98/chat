@@ -36,6 +36,53 @@ Python, Django-REST-framework, React, Redis, django-Channels, Celery
 
 # 📕 사용 설명서
 
+## 메인 화면
+
+<details>
+<summary>이미지</summary>
+<div markdown="1">
+ 
+![스크린샷 2024-12-10 20 02 58](https://github.com/user-attachments/assets/6d426cbf-d9ae-46ab-8900-4c4172929641)
+
+</div>
+</details>
+
+1. 채팅방의 접속자 수를 기준으로 랭킹 표시
+2. 채팅방을 생성일 순서대로 정렬하여 표시
+3. 버튼 클릭하면 로그인 페이지로 이동
+4. 채팅방 입력창이 표시되며 새로운 채팅방 생성 가능
+
+## 채팅방 화면
+
+<details>
+<summary>이미지</summary>
+<div markdown="1">
+ 
+ ![스크린샷 2024-12-10 20 04 59](https://github.com/user-attachments/assets/a2f9e863-e2bd-469a-93f9-cdaf0845eaca)
+
+</div>
+</details>
+
+1. 현제 채팅방에 접속 중인 사용자 목록 표시
+2. 채팅 메시지 표시(기존 메시지, 입장 및 퇴장 알림 포함)
+3. 메인 화면으로 이동하는 버튼
+4. 사진 첨부 버튼 (추후 추가 예정)
+5. 메시지 입력창
+
+## 로그인 화면
+
+<details>
+<summary>이미지</summary>
+<div markdown="1">
+ 
+ ![스크린샷 2024-12-10 18 04 35](https://github.com/user-attachments/assets/c748d80d-cbc8-4af3-a9e3-c247c2c8e954)
+
+</div>
+</details>
+
+1. 이메일을 통해 로그인 하며, 로그인 후 메인 화면으로 이동
+2. 회원가입 화면으로 이동하며, 회원가입 완료 시 로그인 화면으로 다시 이동 
+
 <br>
 
 # 🤔 의사 결정
