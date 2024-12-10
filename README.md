@@ -99,7 +99,7 @@ Python,  Django-REST-framework,  React,  Redis,  django-Channels,  Celery
 
 채팅방 접속자 목록을 실시간으로 갱신하는 과정에서 빈번한 API 요청으로 DB와 서버에 과부하가 발생을 우려했습니다. 
 
-* 기존 방식 *
+**기존 방식**
 
 1. 채팅방에 접속/퇴장 시 사용자 정보 DB에 업데이트
 2. 다른 접속자에게 상태 업데이트
