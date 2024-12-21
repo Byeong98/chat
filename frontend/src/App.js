@@ -1,6 +1,5 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom'
-import { AuthProvider } from './AuthContext';
 import Home from './components/Home/Home';
 import Login from './components/Login/Login';
 import ChatRoom from './components/ChatRoom/ChatRoom';
@@ -9,7 +8,6 @@ import PrivateRoute from './PrivateRoute';
 
 function App() {
   return (
-    <AuthProvider>
       <Router >
         <div className="App">
           <Routes className="App">
@@ -22,7 +20,6 @@ function App() {
           </Routes>
         </div>
       </Router>
-    </AuthProvider>
   );
 }
 

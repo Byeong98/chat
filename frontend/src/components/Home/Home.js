@@ -3,19 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import ChatList from '../ChatList/ChatList';
 import ChatRank from '../ChatRank/ChatRank';
 import styles from './Home.module.css';
-import { AuthContext } from '../../AuthContext';
-import axios from 'axios';
+import apiClient from '../../apiClient';
 
 
 const Home = () => {
     const navigate = useNavigate();
-    const { userName, setUserName } = useContext(AuthContext)
     const [modal, setModal] = useState(false);
     const [roomName, setRoomName] = useState('');
     const chatSocketRef = useRef(null);
     const [roomList, setsRoomList] = useState([]);
     const [roomRank, setsRoomRank] = useState([]);
-
+    const accessToken = localStorage.getItem('accessToken')
 
     useEffect(() => {
         const socket = new WebSocket(
@@ -36,8 +34,6 @@ const Home = () => {
 
         socket.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
-            
-            console.log(newMessage)
             setsRoomList(newMessage.room_list);
             setsRoomRank(newMessage.room_rank);
         };
@@ -50,10 +46,8 @@ const Home = () => {
 
     const handelLogout = async () => {
         try {
-            const response = await axios.post(
-                'http://localhost:8000/api/accounts/logout/');
-            setUserName(null);
-            localStorage.removeItem('CurrentUser');
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
         } catch (error) {
             console.log('error', error);
         }
@@ -62,10 +56,10 @@ const Home = () => {
     const handelModal = async () => {
         if (roomName.trim()) {
             try {
-                const response = await axios.post(
-                    'http://localhost:8000/api/chat/',
+                const response = await apiClient.post(
+                    '/api/chat/',
                     {"roomName":roomName});
-                    navigate(`/chat/${response.data.room_id}`, {state : {roomId: response.data.room_id}})
+                    navigate(`/chat/${response.data.room_id}`, {state : {roomId: response.data.room_id}});
                     setModal(false);
                     setRoomName('');
             } catch (error) {
@@ -74,11 +68,12 @@ const Home = () => {
         } else {
             alert('채팅방 이름을 입력하세요')
         } 
-    }
+    };
+
     return (
         <div className={styles.home_container}>
             <div className={styles.home_button_room}>
-                {!userName ?
+                {!accessToken ?
                     <input
                         className={styles.home_create_room_button}
                         type='button' value='로그인'

@@ -18,7 +18,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         #같은 이름의 채팅방이 있는지 확인 및 생성
         self.chat_room = await self.get_or_create_room(self.room_id)
         self.room_group_name = f"chat_room_id.{self.chat_room.id}"
-
+        
         #Redis에 접속자 저장
         await add_user_to_redis(self.room_group_name, self.user.username)
         

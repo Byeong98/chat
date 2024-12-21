@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // const baseURL = process.env.REACT_APP_API_BASE_URL;
-const baseURL = 'http://localhost:8000/';
+const baseURL = 'http://localhost:8000';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
@@ -12,7 +12,7 @@ const apiClient = axios.create({
 // 요청 인터셉터
 apiClient.interceptors.request.use(
     (config) => {
-        const accessToken = localStorage.getItem('accessToken')
+        const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             config.headers['Authorization'] = `Bearer ${accessToken}`
         }
