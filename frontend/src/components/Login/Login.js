@@ -2,29 +2,12 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css'
 // import apiClient from '../../apiClient';
-import axios from 'axios';
-import { AuthContext } from '../../AuthContext'
+// import axios from 'axios';
+
+import apiClient from '../../apiClient'
 
 const Login = () => {
     const navigate = useNavigate();
-    const { setUserName } = useContext(AuthContext);
-
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    var csrftoken = getCookie('csrftoken');
 
     const [data, setData] = useState({
         email: '',
@@ -34,23 +17,16 @@ const Login = () => {
     //로그인 api 요청
     const handleLogin = async () => {
         try {
-            const response = await axios.post(
-                'http://localhost:8000/api/accounts/login/',
+            const response = await apiClient.post(
+                '/api/login/',
                 {
                     email: data.email,
                     password: data.password
-                },
-                {
-                    headers: {
-                        'X-CSRFToken': csrftoken
-                    }
                 }
             );
-            // const {access, refresh} = response.data            
-            // localStorage.setItem('accessToken', access)
-            // localStorage.setItem('refreshToken', refresh)
-            localStorage.setItem('CurrentUser',response.data.user.username )
-            setUserName(response.data.user.username);
+            const {access, refresh} = response.data            
+            localStorage.setItem('accessToken', access);
+            localStorage.setItem('refreshToken', refresh);
             navigate('/')
         } catch (error) {
             console.log('error', error);

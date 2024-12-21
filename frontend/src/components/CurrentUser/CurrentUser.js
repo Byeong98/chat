@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styles from './CurrentUser.module.css';
-import apiClient from '../../apiClient';
-import axios from 'axios';
+
 
 const CurrentUser = ({users}) => {
 

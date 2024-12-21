@@ -3,8 +3,6 @@ import styles from './ChatRoom.module.css'
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../../AuthContext';
-import axios from 'axios';
 
 
 const ChatRoom = () => {
@@ -12,15 +10,16 @@ const ChatRoom = () => {
     const [messages, setMessages] = useState([]);
     const navigate = useNavigate();
     const [currentUsers, setCurrentUsers] = useState([]);
-    const { userName } = useContext(AuthContext);
     const location = useLocation();
     const endOfMessagesRef = useRef(null);
     const roomId = location.state.roomId;
 
+    const userId = '1'
+
     useEffect(() => {
 
         const socket = new WebSocket(
-            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}` + '/' + `?user=${userName}`);
+            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}`);
         chatSocketRef.current = socket;
 
         socket.onopen = () => {
@@ -65,7 +64,7 @@ const ChatRoom = () => {
             return;
         }
 
-        const sender_user = userName;
+        const sender_user = userId
 
         // 메시지 전송
         chatSocketRef.current.send(
@@ -114,7 +113,7 @@ const ChatRoom = () => {
                                     <p style={{textAlign: 'center', padding: 5}}>
                                         {message.message}
                                     </p>
-                                ) : message.sender_user === userName ? (
+                                ) : message.sender_user === userId ? (
                                     <p style={{textAlign: 'right', padding: 5}}>
                                         {message.sender_user} : {message.message}
                                     </p>

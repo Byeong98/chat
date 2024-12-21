@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styles from './ChatRank.module.css'
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+
 
 const ChatRank = ({roomRank}) => {
     const navigate = useNavigate();
