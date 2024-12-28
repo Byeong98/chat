@@ -23,19 +23,19 @@ from django.core.asgi import get_asgi_application
 from chat.routing import websocket_urlpatterns
 from chat.middlewares import JWTAuthMiddleware
 
-# application = ProtocolTypeRouter(
-#     {
-#         "http": application,
-#         "websocket": 
-#             JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
-#         ,
-#     }
-# )
 application = ProtocolTypeRouter(
     {
         "http": application,
         "websocket": 
-                AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+            JWTAuthMiddleware(URLRouter(websocket_urlpatterns))
         ,
     }
 )
+# application = ProtocolTypeRouter(
+#     {
+#         "http": application,
+#         "websocket": 
+#                 AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+#         ,
+#     }
+# )

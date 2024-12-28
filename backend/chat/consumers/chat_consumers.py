@@ -5,16 +5,19 @@ from ..models import *
 import time
 from ..chat_redis import *
 from ..tasks import send_room_list_celery
-
+from rest_framework_simplejwt.tokens import AccessToken
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.query_string = self.scope["query_string"]
-        self.room_id = self.scope["url_route"]["kwargs"]["room_name"]
+        self.token = self.scope['subprotocols'][0]
+        self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
 
-        self.username = str(self.query_string).split('=')[1][:-1]
-        self.user = await self.get_user(self.username)
-
+        access_token = AccessToken(self.token)
+        self.user_id = access_token["user_id"]
+        self.user = await self.get_user(self.user_id)
+        print(self.user_id)
+        print(self.user)
+        print(self.user.username)
         #같은 이름의 채팅방이 있는지 확인 및 생성
         self.chat_room = await self.get_or_create_room(self.room_id)
         self.room_group_name = f"chat_room_id.{self.chat_room.id}"
@@ -127,8 +130,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     #사용자 찾기
     @database_sync_to_async
-    def get_user(self, username):
-        user= User.objects.get(username=username)
+    def get_user(self, user_id):
+        user= User.objects.get(id=user_id)
         return user
 
     #메시지를 데이터 베이스에 저장
