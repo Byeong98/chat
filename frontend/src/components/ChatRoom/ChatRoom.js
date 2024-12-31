@@ -13,13 +13,14 @@ const ChatRoom = () => {
     const location = useLocation();
     const endOfMessagesRef = useRef(null);
     const roomId = location.state.roomId;
+    const accessToken = localStorage.getItem('accessToken')
 
-    const userId = '1'
+    const userId = accessToken
 
     useEffect(() => {
 
         const socket = new WebSocket(
-            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}`);
+            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}/` + `?token=${accessToken}` );
         chatSocketRef.current = socket;
 
         socket.onopen = () => {
