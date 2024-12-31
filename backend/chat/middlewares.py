@@ -26,14 +26,13 @@ class JWTAuthMiddleware(BaseMiddleware):
         if token:
             try:
                 access_token = AccessToken(token)
-                print(access_token, 3)
                 scope["user"] = await get_user(access_token["user_id"])
             except TokenError:
                 scope["user"] = AnonymousUser()
         else:
             scope["user"] = AnonymousUser()
 
-        
+        #로그인 사용자 출력
         print(f"user : {scope['user']}")
 
         return await super().__call__(scope, receive, send)

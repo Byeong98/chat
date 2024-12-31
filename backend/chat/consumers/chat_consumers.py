@@ -9,15 +9,9 @@ from rest_framework_simplejwt.tokens import AccessToken
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.token = self.scope['subprotocols'][0]
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
+        self.user = self.scope["user"]
 
-        access_token = AccessToken(self.token)
-        self.user_id = access_token["user_id"]
-        self.user = await self.get_user(self.user_id)
-        print(self.user_id)
-        print(self.user)
-        print(self.user.username)
         #같은 이름의 채팅방이 있는지 확인 및 생성
         self.chat_room = await self.get_or_create_room(self.room_id)
         self.room_group_name = f"chat_room_id.{self.chat_room.id}"
