@@ -13,7 +13,8 @@ const Home = () => {
     const chatSocketRef = useRef(null);
     const [roomList, setsRoomList] = useState([]);
     const [roomRank, setsRoomRank] = useState([]);
-    const accessToken = localStorage.getItem('accessToken')
+    const accessToken = localStorage.getItem('accessToken');
+    
 
     useEffect(() => {
         const socket = new WebSocket(

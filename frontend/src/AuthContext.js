@@ -1,19 +1,22 @@
 import React, { createContext, useEffect, useState } from 'react';
+import {jwtDecode} from 'jwt-decode'
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [userName, setUserName] = useState(null);
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
-        const savedUserName = localStorage.getItem('CurrentUser');
-        if (savedUserName) {
-            setUserName(savedUserName);
+        const token = localStorage.getItem('accessToken');
+
+        if (token) {
+            const decodeToken = jwtDecode(token);
+            setUserId(decodeToken.user_id);
         }
     }, []);
 
     return (
-        <AuthContext.Provider value={{ userName, setUserName }}>
+        <AuthContext.Provider value={{ userId, setUserId }}>
             {children}
         </AuthContext.Provider>
     );
