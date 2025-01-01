@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState, useContext} from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import styles from './ChatRoom.module.css'
 // import ChatContainer from '../ChatContainer/ChatContainer';
 import CurrentUser from '../CurrentUser/CurrentUser';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../AuthContext';
 
 
 const ChatRoom = () => {
@@ -13,14 +14,15 @@ const ChatRoom = () => {
     const location = useLocation();
     const endOfMessagesRef = useRef(null);
     const roomId = location.state.roomId;
-    const accessToken = localStorage.getItem('accessToken')
+    const accessToken = localStorage.getItem('accessToken');
+    const { userId } = useContext(AuthContext);
+    const [image, setImage] = useState(null)
 
-    const userId = accessToken
 
     useEffect(() => {
 
         const socket = new WebSocket(
-            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}/` + `?token=${accessToken}` );
+            'ws://127.0.0.1:8000/ws/chat/' + `${roomId}/` + `?token=${accessToken}`);
         chatSocketRef.current = socket;
 
         socket.onopen = () => {
@@ -37,15 +39,18 @@ const ChatRoom = () => {
 
         socket.onmessage = (event) => {
             const newMessage = JSON.parse(event.data);
-            
-            if (newMessage.save_messages){
-                newMessage.save_messages.map((message, index)=>{
+
+            if (newMessage.save_messages) {
+                newMessage.save_messages.map((message, index) => {
                     setMessages((prev) => [...prev, message]);
                 })
             }
             if (newMessage.users) {
                 setCurrentUsers(newMessage.users);
             }
+            // if (newMessage.image){
+            //     setImage(newMessage.image)
+            // }
             setMessages((prev) => [...prev, newMessage]);
         };
 
@@ -66,7 +71,7 @@ const ChatRoom = () => {
         }
 
         const sender_user = userId
-
+        console.log(image)
         // 메시지 전송
         chatSocketRef.current.send(
             JSON.stringify({ message, image: image?.name, sender_user })
@@ -85,7 +90,7 @@ const ChatRoom = () => {
 
     useEffect(() => {
         endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, [messages]);
+    }, [messages]);
 
     const handleHome = () => {
         navigate('/')
@@ -111,17 +116,35 @@ const ChatRoom = () => {
                         {messages.map((message, index) => (
                             <div key={index}>
                                 {!message.sender_user ? (
-                                    <p style={{textAlign: 'center', padding: 5}}>
+                                    <p style={{ textAlign: 'center', padding: 5 }}>
                                         {message.message}
                                     </p>
                                 ) : message.sender_user === userId ? (
-                                    <p style={{textAlign: 'right', padding: 5}}>
-                                        {message.sender_user} : {message.message}
-                                    </p>
+                                    <div>
+                                        {message.image && (
+                                            <img
+                                                src={`${message.image}`}
+                                                alt="Sent by user"
+                                                style={{ maxWidth: '200px', margin: '10px 0' }}
+                                            />
+                                        )}
+                                        <p style={{ textAlign: 'right', padding: 5 }}>
+                                            {message.sender_user} : {message.message}
+                                        </p>
+                                    </div>
                                 ) : (
-                                    <p style={{textAlign: 'left', padding: 5}}>
-                                        {message.sender_user} : {message.message}
-                                    </p>
+                                    <div>
+                                        {message.image && (
+                                            <img
+                                                src={`${message.image}`}
+                                                alt="Sent by user"
+                                                style={{ maxWidth: '200px', margin: '10px 0' }}
+                                            />
+                                        )}
+                                        <p style={{ textAlign: 'left', padding: 5 }}>
+                                            {message.sender_user} : {message.message}
+                                        </p>
+                                    </div>
                                 )}
                                 <div ref={endOfMessagesRef} />
                             </div>
