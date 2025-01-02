@@ -4,6 +4,7 @@ import styles from './ChatRoom.module.css'
 import CurrentUser from '../CurrentUser/CurrentUser';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../AuthContext';
+import apiClient from '../../apiClient'
 
 
 const ChatRoom = () => {
@@ -16,7 +17,7 @@ const ChatRoom = () => {
     const roomId = location.state.roomId;
     const accessToken = localStorage.getItem('accessToken');
     const { userId } = useContext(AuthContext);
-    const [image, setImage] = useState(null)
+
 
 
     useEffect(() => {
@@ -59,7 +60,7 @@ const ChatRoom = () => {
         };
     }, []);
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
         const textInput = document.getElementById('chat-message-input');
         const imageInput = document.getElementById('chat-image-input');
         const message = textInput.value.trim();
@@ -71,10 +72,16 @@ const ChatRoom = () => {
         }
 
         const sender_user = userId
-        console.log(image)
+        let image_url = null;
+
+    // 이미지 업로드 처리
+        if (image) {
+            image_url = await handelImage(image); // URL 생성 대기
+        }
+        
         // 메시지 전송
         chatSocketRef.current.send(
-            JSON.stringify({ message, image: image?.name, sender_user })
+            JSON.stringify({ message, image: image_url, sender_user })
         );
 
         // 입력 필드 초기화
@@ -96,6 +103,22 @@ const ChatRoom = () => {
         navigate('/')
     };
 
+    const handelImage = async (image) => {
+        try {
+            const response = await apiClient.post('/api/chat/message/create/', {
+                'room_id': roomId,
+                'user_id': userId,
+                'image': image
+            }, {
+                headers: {
+                    "Content-Type": "multipart/form-data", // 파일 업로드 시 필수
+                },
+            });
+            return response.data.image_url;
+        } catch (error) {
+            alert('사진 전송 실패')
+        }
+    };
 
     return (
         <div className={styles.chat_room_container}>

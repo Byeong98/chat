@@ -65,13 +65,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
         image = text_data_json.get("image", None)
-        print(image)
         
-        #메시지 저장
-        await self.create_message(chat_room=self.chat_room,
-                                    sender_user=self.user,  
-                                    message=message,    
-                                    image=None)
+        #이미지 파일이 있는 경우 미리 저장됨
+        if not image:
+            await self.create_message(chat_room=self.chat_room,
+                                        sender_user=self.user,  
+                                        message=message,    
+                                        image=image)
         
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message",
