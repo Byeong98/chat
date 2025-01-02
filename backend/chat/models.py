@@ -18,5 +18,5 @@ class Message(models.Model):
     chat_room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name="messages")
     sender_user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField(blank=True)
-    image = models.FileField(upload_to="chat_image",blank=True, null=True)
+    image = models.FileField(upload_to="chat_images/",blank=True, null=True)
     add_date = models.DateTimeField(auto_now_add=True)

@@ -6,8 +6,8 @@ from django.shortcuts import get_list_or_404, get_object_or_404
 from .models import *
 from decouple import config
 import redis
-import json
 from .chat_redis import get_users_from_redis
+from django.contrib.auth import get_user_model
 
 
 rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
@@ -62,6 +62,27 @@ class ChatRoomRankAPIView(APIView):
                 rooms.append(data)
         return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
 
+
+class MessageAPIView(APIView):
+    permission_classes=[AllowAny]
+
+    def post(self, request):
+        data = request.data
+
+        room_id = data.get('room_id')
+        user_id = data.get('user_id')
+        image = request.FILES.get('image')
+        
+        room = get_object_or_404(ChatRoom, id=room_id )
+        user = get_user_model().objects.get(id=user_id)
+        
+        message = Message.objects.create(
+            chat_room=room,
+            sender_user=user,
+            image=image)
+        
+        image_url = request.build_absolute_uri(message.image.url)
+        return Response({'image_url': image_url})
 
 # class ConnectedUsersAPIView(APIView):
 #     def get(self, request, room_id):
