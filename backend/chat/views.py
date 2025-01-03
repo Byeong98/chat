@@ -13,6 +13,8 @@ from django.contrib.auth import get_user_model
 rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
 class ChatRoomCreateAPIView(APIView):
+    permission_classes=[AllowAny]
+
     def post(self, request):
         data = request.data
         room_name = data.get('roomName')
@@ -26,7 +28,7 @@ class ChatRoomCreateAPIView(APIView):
 
 
 class ChatRoomListAPIView(APIView):
-    # permission_classes=[AllowAny]
+    permission_classes=[AllowAny]
 
     def get(self, request):
         chat_rooms = ChatRoom.objects.prefetch_related('users').annotate(user_count=models.Count('users'))
@@ -45,7 +47,7 @@ class ChatRoomListAPIView(APIView):
         return Response({"chat_rooms":rooms}, status=status.HTTP_200_OK)
 
 class ChatRoomRankAPIView(APIView):
-    # permission_classes=[AllowAny]
+    permission_classes=[AllowAny]
 
     def get(self, request):
         chat_rooms = ChatRoom.objects.prefetch_related('users').annotate(user_count=models.Count('users')).order_by('-user_count')
