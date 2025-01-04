@@ -76,6 +76,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message",
                     "sender_user": self.user.id,
+                    "sender_user_name": self.user.username,
                     "message": message, 
                     "image":image}
         )
@@ -86,9 +87,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event["message"]
         sender_user = event["sender_user"]
         image = event["image"]
+        sender_user_name = event["sender_user_name"]
         
         await self.send(text_data=json.dumps({
                     "sender_user": sender_user,
+                    "sender_user_name":sender_user_name,
                     "message": message, 
                     "image":image
                     }))
@@ -147,8 +150,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         dict_messages =[]
         for message in messages:
             dict_messages.append({
-                "sender_user": message.sender_user.username,
+                "sender_user": message.sender_user.id,
+                "sender_user_name": message.sender_user.username,
                 "message": message.content, 
-                "image": None
+                "image": f"http://localhost:8000/media/{message.image}"
                 })
         return dict_messages

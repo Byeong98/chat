@@ -4,6 +4,7 @@ import ChatList from '../ChatList/ChatList';
 import ChatRank from '../ChatRank/ChatRank';
 import styles from './Home.module.css';
 import apiClient from '../../apiClient';
+import { AuthContext } from '../../AuthContext';
 
 
 const Home = () => {
@@ -14,7 +15,8 @@ const Home = () => {
     const [roomList, setsRoomList] = useState([]);
     const [roomRank, setsRoomRank] = useState([]);
     const accessToken = localStorage.getItem('accessToken');
-    
+    const { setUserId } = useContext(AuthContext);
+
 
     useEffect(() => {
         const socket = new WebSocket(
@@ -47,8 +49,9 @@ const Home = () => {
 
     const handelLogout = async () => {
         try {
-            localStorage.removeItem('accessToken')
-            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            window.location.replace('/');
         } catch (error) {
             console.log('error', error);
         }
@@ -74,17 +77,17 @@ const Home = () => {
     return (
         <div className={styles.home_container}>
             <div className={styles.home_button_room}>
-                {!accessToken ?
-                    <input
-                        className={styles.home_create_room_button}
-                        type='button' value='로그인'
-                        onClick={() => navigate('login/')}
-                    />
-                    :
+                {accessToken ?
                     <input
                         className={styles.home_create_room_button}
                         type='button' value='로그아웃'
                         onClick={handelLogout}
+                    /> 
+                    :
+                    <input
+                        className={styles.home_create_room_button}
+                        type='button' value='로그인'
+                        onClick={() => navigate('login/')}
                     />
                 }
 

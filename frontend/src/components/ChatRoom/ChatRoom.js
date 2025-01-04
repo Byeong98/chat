@@ -17,8 +17,7 @@ const ChatRoom = () => {
     const roomId = location.state.roomId;
     const accessToken = localStorage.getItem('accessToken');
     const { userId } = useContext(AuthContext);
-
-
+    const [image, setImage] = useState(null);
 
     useEffect(() => {
 
@@ -60,25 +59,32 @@ const ChatRoom = () => {
         };
     }, []);
 
+    const handleImageChange = () => {
+        const imageInput = document.getElementById('chat-image-input');
+        if (imageInput?.files?.[0]) {
+            setImage(imageInput.files[0]); // 파일 설정
+        } else {
+            setImage(null); // 파일이 없으면 초기화
+        }
+    };
+
     const sendMessage = async () => {
         const textInput = document.getElementById('chat-message-input');
         const imageInput = document.getElementById('chat-image-input');
         const message = textInput.value.trim();
-        const image = imageInput.files?.[0] || null; // 이미지 파일이 있을 경우
 
         if (!message && !image) {
             console.log('메시지 또는 이미지를 입력하세요.');
             return;
         }
-
         const sender_user = userId
         let image_url = null;
 
-    // 이미지 업로드 처리
+        // 이미지 업로드 처리
         if (image) {
             image_url = await handelImage(image); // URL 생성 대기
         }
-        
+
         // 메시지 전송
         chatSocketRef.current.send(
             JSON.stringify({ message, image: image_url, sender_user })
@@ -87,9 +93,14 @@ const ChatRoom = () => {
         // 입력 필드 초기화
         textInput.value = '';
         imageInput.value = '';
+        setImage(null);
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.nativeEvent.isComposing) { 	  
+            return;				  
+        } //isComposing이 true이면 아지 작성 중이라 전송 막음.
+
         if (e.key === 'Enter') {
             sendMessage();
         }
@@ -134,7 +145,7 @@ const ChatRoom = () => {
             <div className={styles.chat_container}>
                 <CurrentUser users={currentUsers} />
                 <div className={styles.chatting_container}>
-                    <div className={styles.chat_content_container}>
+                    <div className={styles.chat_content_container} >
                         {/* 메시지 표시 */}
                         {messages.map((message, index) => (
                             <div key={index}>
@@ -145,28 +156,38 @@ const ChatRoom = () => {
                                 ) : message.sender_user === userId ? (
                                     <div>
                                         {message.image && (
-                                            <img
-                                                src={`${message.image}`}
-                                                alt="Sent by user"
-                                                style={{ maxWidth: '200px', margin: '10px 0' }}
-                                            />
+                                            <div style={{ textAlign: 'right', margin: '10px 20px' }}>
+                                                <img
+                                                    src={`${message.image}`}
+                                                    alt={message.sender_user}
+                                                    style={{ maxWidth: '200px' }}
+                                                    onLoad={() => endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                                />
+                                            </div>
                                         )}
-                                        <p style={{ textAlign: 'right', padding: 5 }}>
-                                            {message.sender_user} : {message.message}
-                                        </p>
+                                        {message.message && (
+                                            <p style={{ textAlign: 'right', padding: 5 }}>
+                                                {message.sender_user_name} : {message.message}
+                                            </p>
+                                        )}
                                     </div>
                                 ) : (
                                     <div>
                                         {message.image && (
-                                            <img
-                                                src={`${message.image}`}
-                                                alt="Sent by user"
-                                                style={{ maxWidth: '200px', margin: '10px 0' }}
-                                            />
+                                            <div style={{ textAlign: 'left', margin: '10px 20px' }}>
+                                                <img
+                                                    src={`${message.image}`}
+                                                    alt={message.sender_user}
+                                                    style={{ maxWidth: '200px' }}
+                                                    onLoad={() => endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                                />
+                                            </div>
                                         )}
-                                        <p style={{ textAlign: 'left', padding: 5 }}>
-                                            {message.sender_user} : {message.message}
-                                        </p>
+                                        {message.message && (
+                                            <p style={{ textAlign: 'left', padding: 5 }}>
+                                                {message.sender_user_name} : {message.message}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                                 <div ref={endOfMessagesRef} />
@@ -186,15 +207,17 @@ const ChatRoom = () => {
                             accept="image/*"
                             type="file"
                             onKeyDown={handleKeyPress}
+                            onChange={handleImageChange}
                         />
                         <input
                             className={styles.chat_message_input}
                             id="chat-message-input"
                             type="text"
                             maxLength="50"
-                            placeholder="메시지를 입력하세요"
+                            placeholder={image ? image.name : "메시지를 입력하세요"}
                             aria-label="메시지 입력"
                             onKeyDown={handleKeyPress}
+                            disabled={!!image}
                         />
                         <input
                             className={styles.chat_message_submit}
