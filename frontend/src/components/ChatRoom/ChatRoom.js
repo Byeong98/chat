@@ -17,6 +17,7 @@ const ChatRoom = () => {
     const roomId = location.state.roomId;
     const accessToken = localStorage.getItem('accessToken');
     const { userId } = useContext(AuthContext);
+    const [image, setImage] = useState(null);
 
     useEffect(() => {
 
@@ -58,17 +59,24 @@ const ChatRoom = () => {
         };
     }, []);
 
+    const handleImageChange = () => {
+        const imageInput = document.getElementById('chat-image-input');
+        if (imageInput?.files?.[0]) {
+            setImage(imageInput.files[0]); // 파일 설정
+        } else {
+            setImage(null); // 파일이 없으면 초기화
+        }
+    };
+
     const sendMessage = async () => {
         const textInput = document.getElementById('chat-message-input');
         const imageInput = document.getElementById('chat-image-input');
         const message = textInput.value.trim();
-        const image = imageInput.files?.[0] || null; // 이미지 파일이 있을 경우
 
         if (!message && !image) {
             console.log('메시지 또는 이미지를 입력하세요.');
             return;
         }
-
         const sender_user = userId
         let image_url = null;
 
@@ -85,9 +93,14 @@ const ChatRoom = () => {
         // 입력 필드 초기화
         textInput.value = '';
         imageInput.value = '';
+        setImage(null);
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
+        if (e.nativeEvent.isComposing) { 	  
+            return;				  
+        } //isComposing이 true이면 아지 작성 중이라 전송 막음.
+
         if (e.key === 'Enter') {
             sendMessage();
         }
@@ -154,7 +167,7 @@ const ChatRoom = () => {
                                         )}
                                         {message.message && (
                                             <p style={{ textAlign: 'right', padding: 5 }}>
-                                                {message.sender_user} : {message.message}
+                                                {message.sender_user_name} : {message.message}
                                             </p>
                                         )}
                                     </div>
@@ -172,7 +185,7 @@ const ChatRoom = () => {
                                         )}
                                         {message.message && (
                                             <p style={{ textAlign: 'left', padding: 5 }}>
-                                                {message.sender_user} : {message.message}
+                                                {message.sender_user_name} : {message.message}
                                             </p>
                                         )}
                                     </div>
@@ -194,15 +207,17 @@ const ChatRoom = () => {
                             accept="image/*"
                             type="file"
                             onKeyDown={handleKeyPress}
+                            onChange={handleImageChange}
                         />
                         <input
                             className={styles.chat_message_input}
                             id="chat-message-input"
                             type="text"
                             maxLength="50"
-                            placeholder="메시지를 입력하세요"
+                            placeholder={image ? image.name : "메시지를 입력하세요"}
                             aria-label="메시지 입력"
                             onKeyDown={handleKeyPress}
+                            disabled={!!image}
                         />
                         <input
                             className={styles.chat_message_submit}

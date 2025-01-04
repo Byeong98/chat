@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css'
-// import apiClient from '../../apiClient';
-// import axios from 'axios';
-
 import apiClient from '../../apiClient'
+import { AuthContext } from '../../AuthContext';
+import { jwtDecode } from 'jwt-decode';
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setUserId } = useContext(AuthContext)
 
     const [data, setData] = useState({
         email: '',
@@ -27,7 +27,11 @@ const Login = () => {
             const {access, refresh} = response.data            
             localStorage.setItem('accessToken', access);
             localStorage.setItem('refreshToken', refresh);
-            navigate('/')
+            
+            const decodeToken = jwtDecode(access);
+            setUserId(decodeToken.user_id);
+            
+            navigate('/');
         } catch (error) {
             console.log('error', error);
         }
