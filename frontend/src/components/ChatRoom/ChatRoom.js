@@ -18,8 +18,6 @@ const ChatRoom = () => {
     const accessToken = localStorage.getItem('accessToken');
     const { userId } = useContext(AuthContext);
 
-
-
     useEffect(() => {
 
         const socket = new WebSocket(
@@ -74,11 +72,11 @@ const ChatRoom = () => {
         const sender_user = userId
         let image_url = null;
 
-    // 이미지 업로드 처리
+        // 이미지 업로드 처리
         if (image) {
             image_url = await handelImage(image); // URL 생성 대기
         }
-        
+
         // 메시지 전송
         chatSocketRef.current.send(
             JSON.stringify({ message, image: image_url, sender_user })
@@ -134,7 +132,7 @@ const ChatRoom = () => {
             <div className={styles.chat_container}>
                 <CurrentUser users={currentUsers} />
                 <div className={styles.chatting_container}>
-                    <div className={styles.chat_content_container}>
+                    <div className={styles.chat_content_container} >
                         {/* 메시지 표시 */}
                         {messages.map((message, index) => (
                             <div key={index}>
@@ -145,28 +143,38 @@ const ChatRoom = () => {
                                 ) : message.sender_user === userId ? (
                                     <div>
                                         {message.image && (
-                                            <img
-                                                src={`${message.image}`}
-                                                alt="Sent by user"
-                                                style={{ maxWidth: '200px', margin: '10px 0' }}
-                                            />
+                                            <div style={{ textAlign: 'right', margin: '10px 20px' }}>
+                                                <img
+                                                    src={`${message.image}`}
+                                                    alt={message.sender_user}
+                                                    style={{ maxWidth: '200px' }}
+                                                    onLoad={() => endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                                />
+                                            </div>
                                         )}
-                                        <p style={{ textAlign: 'right', padding: 5 }}>
-                                            {message.sender_user} : {message.message}
-                                        </p>
+                                        {message.message && (
+                                            <p style={{ textAlign: 'right', padding: 5 }}>
+                                                {message.sender_user} : {message.message}
+                                            </p>
+                                        )}
                                     </div>
                                 ) : (
                                     <div>
                                         {message.image && (
-                                            <img
-                                                src={`${message.image}`}
-                                                alt="Sent by user"
-                                                style={{ maxWidth: '200px', margin: '10px 0' }}
-                                            />
+                                            <div style={{ textAlign: 'left', margin: '10px 20px' }}>
+                                                <img
+                                                    src={`${message.image}`}
+                                                    alt={message.sender_user}
+                                                    style={{ maxWidth: '200px' }}
+                                                    onLoad={() => endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                                                />
+                                            </div>
                                         )}
-                                        <p style={{ textAlign: 'left', padding: 5 }}>
-                                            {message.sender_user} : {message.message}
-                                        </p>
+                                        {message.message && (
+                                            <p style={{ textAlign: 'left', padding: 5 }}>
+                                                {message.sender_user} : {message.message}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                                 <div ref={endOfMessagesRef} />
