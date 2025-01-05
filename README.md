@@ -22,7 +22,7 @@
 > WebSocket의 심화 과정과 대규모 채팅 서버 설계를 학습하고, Celery를 활용한 비동기 통신과 실시간 랭킹 구현을 통해 실시간 응답 시스템에 대한 이해를 높이는 것을 목표로 했습니다. 또한 React를 복습하며 프론트엔드와 백엔드 간의 실시간 데이터 처리에 대한 실력을 높이려 했습니다.
 
 ### 기술 스택 
-> Python,  Django-REST-framework,  React,  Redis,  django-Channels,  Celery
+> Python,  Django-REST-framework,  React,  Redis,  django-Channels,  Celery, Mysql
 
 <br>
 
