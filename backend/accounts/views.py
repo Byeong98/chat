@@ -12,7 +12,7 @@ import json
 rd = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
 class AccountsAPIView(APIView):
-    # permission_classes=[AllowAny]
+    permission_classes=[AllowAny]
 
     def post(self, request):
         data = request.data
