@@ -108,7 +108,7 @@ class ChatTestConsumers(AsyncWebsocketConsumer):
     # 데이터베이스 저장 ------- test 
     @database_sync_to_async
     def get_or_create_room_and_user(self,room_id, user):
-        room, created = ChatRoom.objects.get_or_create(id=room_id)
+        room, created = ChatRoom.objects.get_or_create(id=room_id,name=f"room-{room_id}")
         if room:
             room.users.add(user)
         if created:

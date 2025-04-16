@@ -11,8 +11,7 @@ class WebSocketClient:
         self.ws = None
 
     def connect(self):
-        if self.ws is None:
-            self.ws = websocket.create_connection(self.url)
+        self.ws = websocket.create_connection(self.url)
 
     def send(self, message):
         if self.ws:
@@ -32,19 +31,21 @@ class WebSocketClient:
 class ChatUser(HttpUser):
     user_count = 0
     users = [] # 생성한 사용자 id 값 저장
-    rooms =[] # 생성한 채팅방 id 값 저장
+    # rooms =[] # 생성한 채팅방 id 값 저장
 
     # 테스트 시작될 때 실행
-    def on_start(self):
-        self.Websocket_client = None # None으로 초기화하고 존재 여부 확인 후 close.
+    # def on_start(self):
         # 채팅방 생성
-        self.room_id_numbers = [] # 채팅방 id 갑 저장
-        room_name = random.sample(range(1, 9999), 5)
-        for i in room_name:
-            response = self.client.post("/api/chat/", json={"roomName": f"{i}"})
-            room_id = response.json().get('room_id')
-            self.room_id_numbers.append(room_id)
-            self.rooms.append(room_id) # 테스트 종료시 사용할 채팅방 리스트에 저장
+        # self.room_id_numbers = [] # 채팅방 id 갑 저장
+        # room_name = [1,2]
+        # for i in room_name:
+        #     response = self.client.post("/api/chat/", json={"roomName": f"{i}"})
+            # if response:
+            #     room_id = response.json().get('room_id')
+            # else:
+            #     room_id = i
+            # self.room_id_numbers.append(room_id)
+            # self.rooms.append(room_id) # 테스트 종료시 사용할 채팅방 리스트에 저장
 
 
     # 테스트가 종료될 때 실행
@@ -58,15 +59,15 @@ class ChatUser(HttpUser):
                                 json={"user_id":user_id})
 
         # 채팅방 삭제
-        for room_id in self.rooms:
-            self.client.delete("/api/chat/",
-                                json={"room_id":room_id})
+        # for room_id in self.rooms:
+        #     self.client.delete("/api/chat/",
+        #                         json={"room_id":room_id})
 
     # 테스트 한번 씩 실행하는 함수
     @task
     def print_user(self):
         user_num = random.randint(1, 9999)
-        room_num = random.choice(self.room_id_numbers)
+        room_num = random.choice([1,2])
 
         # 회원가입
         signup = self.client.post(
@@ -83,7 +84,7 @@ class ChatUser(HttpUser):
         token = login.json().get("access") # 웹소켓 접속을 위한 사용자 토큰값
 
         # 웹소켓 채팅방 입장
-        self.Websocket_client = WebSocketClient(f'ws://140.245.75.185:8000/ws/chat/' + f'{room_num}/?token={token}')
+        self.Websocket_client = WebSocketClient(f'ws://127.0.0.1:8000/ws/chat/' + f'{room_num}/?token={token}')
         self.Websocket_client.connect()
 
         # 채팅방 사용자 목록 갱신
