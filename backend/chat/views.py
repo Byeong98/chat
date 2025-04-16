@@ -24,6 +24,19 @@ class ChatRoomCreateAPIView(APIView):
             return Response({"room_id": room.id}, status=status.HTTP_201_CREATED)
         except:
             return Response({"message": '채팅방 이름이 중복 입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # 채팅방삭제 테스트
+    def delete(self, request):
+        data = request.data
+        room_id = data.get('room_id')
+
+        try:
+            room =  ChatRoom.objects.get(id=room_id)
+            room.delete()
+            return Response({"message": "채팅방이 삭제되었습니다."}, status=204)
+        except User.DoesNotExist:
+            return Response({"error": "채팅방이 존재하지 않습니다."}, status=404)
+
 
 
 
@@ -92,9 +105,11 @@ class MessageAPIView(APIView):
 #         users = [user for user in users_redis]
 #         return Response({"users": users}, status=status.HTTP_200_OK)
     
-# class ConnectedUsersAPIView(APIView):
-#     def get(self, request, room_id):
-#         room = ChatRoom.objects.get(id=room_id)
-#         users = [user.username for user in room.users.all()]
-#         return Response({"users": users}, status=status.HTTP_200_OK)
+class ConnectedUsersAPIView(APIView):
+    permission_classes=[AllowAny]
+
+    def get(self, request, room_id):
+        room = ChatRoom.objects.get(id=room_id)
+        users = [user.username for user in room.users.all()]
+        return Response({"users": users}, status=status.HTTP_200_OK)
 
