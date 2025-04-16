@@ -115,22 +115,22 @@ CELERY_TASK_SERIALIZER = 'json'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 #mysql 적용 
-# DATABASES = {
-#     'default':  {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'chat_django_database',
-#         'USER' : 'root',
-#         'PASSWORD' : config('MYSQL_DEFAULT_PASSWORD'), 
-#         'HOST' : '127.0.0.1',
-#         'PORT' : '3306',
-#     }
-#     }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "db.sqlite3",
+    'default':  {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'chat_django_database',
+        'USER' : 'root',
+        'PASSWORD' : config('MYSQL_DEFAULT_PASSWORD'), 
+        'HOST' : config('ALLOWED_HOSTS'),
+        'PORT' : '3306',
     }
-}
+    }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": "db.sqlite3",
+#     }
+# }
 
 
 # Password validation

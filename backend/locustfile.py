@@ -3,7 +3,7 @@ import websocket
 import time
 import json
 import random
-
+from decouple import config
 
 class WebSocketClient:
     def __init__(self, url):
@@ -11,16 +11,22 @@ class WebSocketClient:
         self.ws = None
 
     def connect(self):
-        self.ws = websocket.create_connection(self.url)
-    
+        if self.ws is None:
+            self.ws = websocket.create_connection(self.url)
+
     def send(self, message):
-        self.ws.send(json.dumps(message))
-    
+        if self.ws:
+            self.ws.send(json.dumps(message))
+
     def receive(self):
-        return self.ws.recv()
-    
+        if self.ws:
+            return self.ws.recv()
+
     def close(self):
-        self.ws.close()
+        if self.ws:
+            self.ws.close()
+            self.ws = None
+
 
 
 class ChatUser(HttpUser):
@@ -77,7 +83,7 @@ class ChatUser(HttpUser):
         token = login.json().get("access") # 웹소켓 접속을 위한 사용자 토큰값
 
         # 웹소켓 채팅방 입장
-        self.Websocket_client = WebSocketClient('ws://127.0.0.1:8000/ws/chat/' + f'{room_num}/?token={token}')
+        self.Websocket_client = WebSocketClient(f'ws://140.245.75.185:8000/ws/chat/' + f'{room_num}/?token={token}')
         self.Websocket_client.connect()
 
         # 채팅방 사용자 목록 갱신
