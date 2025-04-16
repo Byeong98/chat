@@ -30,6 +30,7 @@ class ChatUser(HttpUser):
 
     # 테스트 시작될 때 실행
     def on_start(self):
+        self.Websocket_client = None # None으로 초기화하고 존재 여부 확인 후 close.
         # 채팅방 생성
         self.room_id_numbers = [] # 채팅방 id 갑 저장
         room_name = random.sample(range(1, 9999), 5)
@@ -42,7 +43,8 @@ class ChatUser(HttpUser):
 
     # 테스트가 종료될 때 실행
     def on_stop(self):
-        self.Websocket_client.close()
+        if self.Websocket_client:
+            self.Websocket_client.close()
 
         # 사용자 삭제
         for user_id in self.users:
@@ -59,7 +61,7 @@ class ChatUser(HttpUser):
     def print_user(self):
         user_num = random.randint(1, 9999)
         room_num = random.choice(self.room_id_numbers)
-        print(room_num, self.room_id_numbers)
+
         # 회원가입
         signup = self.client.post(
                 "/api/accounts/signup/",
