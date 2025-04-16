@@ -87,7 +87,7 @@ class ChatUser(HttpUser):
         self.Websocket_client.connect()
 
         # 채팅방 사용자 목록 갱신
-        self.client.get(f"/api/{room_num}/users/")
+        self.client.get(f"/api/chat/{room_num}/users/")
         
         # 홈화면 채팅방 리스트 + 랭킹 갱신
         self.client.get("/api/chat/list")
