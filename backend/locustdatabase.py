@@ -49,10 +49,10 @@ class ChatUser(HttpUser):
 
 
     # 테스트가 종료될 때 실행
-    def on_stop(self):
-        # 웹소켓 연결 종료
-        for ws in self.websocket_clients.values():
-            ws.close()
+    # def on_stop(self):
+    #     # 웹소켓 연결 종료
+    #     for ws in self.websocket_clients.values():
+    #         ws.close()
 
         # 사용자 삭제
         # for user_id in self.users:
@@ -86,7 +86,7 @@ class ChatUser(HttpUser):
 
         # 웹소켓 채팅방 입장
         if room_num not in self.websocket_clients:
-            ws_client = WebSocketClient(f'ws://140.245.75.185:8000/ws/chat/' + f'{room_num}/?token={token}')
+            ws_client = WebSocketClient(f'ws://140.245.75.185:8000/ws/chat/test/' + f'{room_num}/?token={token}')
             ws_client.connect()
             self.websocket_clients[room_num] = ws_client
         else:

@@ -37,10 +37,10 @@ class ChatUser(HttpUser):
 
 
     # 테스트가 종료될 때 실행
-    def on_stop(self):
-        # 웹소켓 연결 종료
-        for ws in self.websocket_clients.values():
-            ws.close()
+    # def on_stop(self):
+    #     # 웹소켓 연결 종료
+    #     for ws in self.websocket_clients.values():
+    #         ws.close()
 
     # 테스트 한번 씩 실행하는 함수
     @task
