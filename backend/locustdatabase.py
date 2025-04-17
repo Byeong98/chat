@@ -97,5 +97,5 @@ class ChatUser(HttpUser):
         self.client.get(f"/api/chat/{room_num}/users/")
         
         # 홈화면 채팅방 리스트 + 랭킹 갱신
-        self.client.get("/api/chat/list/")
-        self.client.get("/api/chat/rank/")
+        # self.client.get("/api/chat/list/")
+        # self.client.get("/api/chat/rank/")

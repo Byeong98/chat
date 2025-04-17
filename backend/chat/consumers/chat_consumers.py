@@ -115,9 +115,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #같은 이름의 채팅방을 가져오거난 생성
     @database_sync_to_async
     def get_or_create_room(self,room_id):
-        room = ChatRoom.objects.filter(id=room_id).first()
-        if not room:
-            room = ChatRoom.objects.create(name=f"room-{room_id}")
+        # room = ChatRoom.objects.filter(id=room_id).first()
+        # if not room:
+        #     room = ChatRoom.objects.create(name=f"room-{room_id}")
+        # return room
+        
+        #test
+        room, created = ChatRoom.objects.get_or_create(id=room_id,name=f"room-{room_id}")
         return room
     
     #해당채팅방에 있는 유저 확인하기
