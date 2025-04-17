@@ -6,7 +6,7 @@ redis_pool = ConnectionPool(host = config("REDIS_ADDRESS"),
                                 port= config("REDIS_PORT"),
                                 password=config("REDIS_PASSWORD"), 
                                 db=0,
-                                max_connections=10
+                                max_connections=100
                                 )
 redis_client = redis.Redis(connection_pool=redis_pool)
 
