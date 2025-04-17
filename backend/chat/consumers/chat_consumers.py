@@ -6,6 +6,7 @@ import time
 from ..chat_redis import *
 from ..tasks import send_room_list_celery, remove_and_get_user
 from rest_framework_simplejwt.tokens import AccessToken
+import asyncio
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -38,18 +39,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }))
         
         #홈화면 갱신
-        send_room_list_celery.delay()
+        # send_room_list_celery.delay()
 
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
         
         # celery 비동기 실행
-        remove_and_get_user.delay(self.room_group_name,
-                                    self.user.username,
-                                    self.chat_room.id
-                                    )
-        
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        # remove_and_get_user.delay(self.room_group_name,
+        #                             self.user.username,
+        #                             self.chat_room.id
+        #                             )
+
+        users_redis = await remove_user_and_get_users_from_redis(self.room_group_name, self.user.username)
+
+        await asyncio.gather(
+                self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        "type": "chat.update_users",
+                        "users": list(users_redis),
+                        "message": f'{self.user.username}님이 퇴장 했습니다.',
+                    }
+                ),
+                self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+            )
 
     #메시지 보내는 로직
     async def receive(self, text_data):
