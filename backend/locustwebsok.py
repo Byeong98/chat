@@ -30,8 +30,6 @@ class WebSocketClient:
 
 class ChatUser(HttpUser):
     user_count = 0
-    # users = [] # 생성한 사용자 id 값 저장
-    # rooms =[] # 생성한 채팅방 id 값 저장
 
     # 테스트 시작될 때 실행
     def on_start(self):
@@ -64,7 +62,3 @@ class ChatUser(HttpUser):
             self.websocket_clients[room_num] = ws_client
         else:
             ws_client = self.websocket_clients[room_num]
-
-
-        self.user_count += 1
-        print(self.user_count)

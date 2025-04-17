@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from ..models import *
 import time
 from ..chat_redis import *
-from ..tasks import send_room_list_celery
+from ..tasks import send_room_list_celery, remove_and_get_user
 from rest_framework_simplejwt.tokens import AccessToken
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -42,21 +42,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
-        #사용자 삭제
-        users_count = await remove_user_to_redis(self.room_group_name, self.user.username)
-
-        if users_count:
-            await self.delete_room(self.chat_room.id)
-
-        #퇴장 메시지 전송 + 접속자 리스트 갱신
-        users_redis = await get_users_from_redis(self.room_group_name)
-        await self.channel_layer.group_send(
-            self.room_group_name,{
-                "type": "chat.update_users",  # 사용자 목록 갱신을 위한 이벤트
-                "users": list(users_redis), # Redis에서 가져온 사용자 목록
-                "message": f'{self.user.username}님이 퇴장 했습니다.', 
-            }
-        )
+        
+        # celery 비동기 실행
+        remove_and_get_user.delay(self.room_group_name,
+                                    self.user.username,
+                                    self.chat_room.id
+                                    )
         
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
@@ -111,7 +102,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #같은 이름의 채팅방을 가져오거난 생성
     @database_sync_to_async
     def get_or_create_room(self,room_id):
-        room, created = ChatRoom.objects.get_or_create(id=room_id)
+        room = ChatRoom.objects.filter(id=room_id).first()
+        if not room:
+            room = ChatRoom.objects.create(name=f"room-{room_id}")
         return room
     
     #해당채팅방에 있는 유저 확인하기
