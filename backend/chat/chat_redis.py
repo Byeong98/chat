@@ -38,6 +38,6 @@ async def remove_user_and_get_users_from_redis(key: str, value: str):
     await redis_client.srem(key, value)
 
     # 최신 접속자 목록 반환
-    users = await redis_client.smembers(key)
+    # users = await redis_client.smembers(key)
 
-    return users
+    # return users

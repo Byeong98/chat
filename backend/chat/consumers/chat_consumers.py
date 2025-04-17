@@ -52,17 +52,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         users_redis = await remove_user_and_get_users_from_redis(self.room_group_name, self.user.username)
 
-        await asyncio.gather(
-                self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        "type": "chat.update_users",
-                        "users": list(users_redis),
-                        "message": f'{self.user.username}님이 퇴장 했습니다.',
-                    }
-                ),
-                self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-            )
+        # await asyncio.gather(
+        #         self.channel_layer.group_send(
+        #             self.room_group_name,
+        #             {
+        #                 "type": "chat.update_users",
+        #                 "users": list(users_redis),
+        #                 "message": f'{self.user.username}님이 퇴장 했습니다.',
+        #             }
+        #         ),
+        #         self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        #     )
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     #메시지 보내는 로직
     async def receive(self, text_data):

@@ -50,6 +50,7 @@ class ChatTestConsumers(AsyncWebsocketConsumer):
         # if users_count == 0:
         #     await self.delete_room(chat_room.id)
         
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     #메시지 보내는 로직
     async def receive(self, text_data):
