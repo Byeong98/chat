@@ -8,8 +8,23 @@ from ..tasks import send_room_list_celery, remove_and_get_user
 from rest_framework_simplejwt.tokens import AccessToken
 import asyncio
 
+from asgiref.sync import sync_to_async
+from django.db import connection
+
+# 쿼리 초기화
+@sync_to_async
+def reset_queries():
+    connection.queries_log.clear()
+# 쿼리 수 찾기
+@sync_to_async
+def print_query_count():
+    print(f"발생한 DB 쿼리 수: {len(connection.queries)}개")
+
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        await reset_queries()
+        start = time.perf_counter()
+
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.user = self.scope["user"]
 
@@ -23,6 +38,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         #현재 채널을 그룹에 추가 + 연결 수락
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
+
+        after_accept = time.perf_counter()
+        print(f"채팅방 연결 완료: {after_accept - start:.4f} s")
         
         #채팅방 입장 전송
         save_messages = await self.get_message(self.chat_room)
@@ -34,10 +52,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "message": f'{self.user.username}님이 입장 했습니다.', 
             }
         )
+
+        after_group_send = time.perf_counter()
+        print(f"접속자 리스트 접속 끝 : {after_group_send - after_accept:.4f} s")
+
         await self.send(text_data=json.dumps({
                     "save_messages":save_messages
                     }))
         
+        end = time.perf_counter()
+        print(f"총 걸린 시간: {end - start:.4f} s")
+        await print_query_count()
         #홈화면 갱신
         # send_room_list_celery.delay()
 
@@ -122,7 +147,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # return room
         
         #test
-        room, created = ChatRoom.objects.get_or_create(id=room_id,name=f"room-{room_id}")
+        room= ChatRoom.objects.get(id=room_id)
         return room
     
     #해당채팅방에 있는 유저 확인하기

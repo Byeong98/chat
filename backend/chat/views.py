@@ -6,7 +6,7 @@ from django.shortcuts import get_list_or_404, get_object_or_404
 from .models import *
 from decouple import config
 import redis
-from .chat_redis import get_users_from_redis
+
 from django.contrib.auth import get_user_model
 
 
@@ -112,4 +112,29 @@ class ConnectedUsersAPIView(APIView):
         room = ChatRoom.objects.get(id=room_id)
         users = [user.username for user in room.users.all()]
         return Response({"users": users}, status=status.HTTP_200_OK)
+    
+    # 채팅방에 사용자 저장
+    def post(self, request, room_id:int):
+        users = User.objects.all() 
+        room = ChatRoom.objects.get(id=room_id)
+        for user in users:
+            room.users.add(user)
+        return Response({"room_id": room.id}, status=status.HTTP_200_OK)
 
+from asgiref.sync import async_to_sync 
+from .chat_redis import get_users_from_redis, add_user_to_redis
+# redis 채팅방 사용자 조회 코드
+class ConnectedUsersRedisAPIView(APIView):
+    permission_classes=[AllowAny]
+
+    def get(self, request, room_id):
+        room_group_name = f"chat_room_id.{room_id}"
+        users = async_to_sync(get_users_from_redis)(room_group_name)
+        return Response({"users": list(users)}, status=status.HTTP_200_OK)
+    
+    def post(self, request, room_id):
+        users = User.objects.all()
+        room_group_name = f"chat_room_id.{room_id}"
+        for user in users:
+            async_to_sync(add_user_to_redis)(room_group_name, user.username)
+        return Response({"users": room_group_name}, status=status.HTTP_200_OK)

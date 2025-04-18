@@ -15,7 +15,7 @@ class ChatUserCreate(HttpUser):
                     "/api/accounts/signup/",
                     json={"email": f'{user_num}@test.com', "username": f"{user_num}", "password": "1234"}
                 )
-            self.user_count += 1
+            
     
     @task
     def print_user(self):

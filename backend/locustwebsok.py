@@ -1,9 +1,10 @@
-from locust import HttpUser, task, events
+from locust import HttpUser, task, between
 import websocket
 import time
 import json
 import random
 from decouple import config
+import redis
 
 class WebSocketClient:
     def __init__(self, url):
@@ -28,37 +29,35 @@ class WebSocketClient:
 
 
 
+
 class ChatUser(HttpUser):
-    user_count = 0
+    wait_time = between(1, 3)
 
     # 테스트 시작될 때 실행
     def on_start(self):
         self.websocket_clients = {}
 
-
-    # 테스트가 종료될 때 실행
-    # def on_stop(self):
-    #     # 웹소켓 연결 종료
-    #     for ws in self.websocket_clients.values():
-    #         ws.close()
-
-    # 테스트 한번 씩 실행하는 함수
-    @task
-    def print_user(self):
         user_num = random.randint(1, 51)
-        room_num = random.choice([1,2,3])
-        
+        room_num = random.choice([3,4,5])
+
         # 로그인 
         login = self.client.post(
                 "/api/login/",
-                json={"email": f'{user_num}@test.com', "password": "1234"}
+                json={"email": f'{user_num}@test.com', "password": "1234"},
+                headers={"Content-Type": "application/json"}
             )
+
         token = login.json().get("access") # 웹소켓 접속을 위한 사용자 토큰값
 
-        # 웹소켓 채팅방 입장
+        # # 웹소켓 채팅방 입장
         if room_num not in self.websocket_clients:
-            ws_client = WebSocketClient(f'ws://140.245.75.185:8000/ws/chat/' + f'{room_num}/?token={token}')
+            ws_client = WebSocketClient(f'ws://127.0.0.1:8000/ws/chat/' + f'{room_num}/?token={token}')
             ws_client.connect()
             self.websocket_clients[room_num] = ws_client
         else:
             ws_client = self.websocket_clients[room_num]
+    # 테스트 한번 씩 실행하는 함수
+    @task
+    def print_user(self):
+        pass
+
