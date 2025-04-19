@@ -27,7 +27,8 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = [config('ALLOWED_HOSTS'), "localhost"]
+
 
 
 # Application definition
@@ -120,11 +121,16 @@ DATABASES = {
         'NAME': 'chat_django_database',
         'USER' : 'root',
         'PASSWORD' : config('MYSQL_DEFAULT_PASSWORD'), 
-        'HOST' : '127.0.0.1',
+        'HOST' : config('ALLOWED_HOSTS'),
         'PORT' : '3306',
     }
     }
-
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": "db.sqlite3",
+#     }
+# }
 
 
 # Password validation
@@ -203,4 +209,5 @@ CORS_ORIGIN_WHITELIST = (
     # 'https://127.0.0.1:3000',
     # 'http://127.0.0.1:3000',
     'http://localhost:3000',
+    'http://140.245.75.185:3000',
 )

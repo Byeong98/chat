@@ -6,7 +6,7 @@ redis_pool = ConnectionPool(host = config("REDIS_ADDRESS"),
                                 port= config("REDIS_PORT"),
                                 password=config("REDIS_PASSWORD"), 
                                 db=0,
-                                max_connections=10
+                                max_connections=100
                                 )
 redis_client = redis.Redis(connection_pool=redis_pool)
 
@@ -32,3 +32,4 @@ async def get_users_from_redis(key: str):
 #모든 채팅방 접속자 가져오기 
 async def get_list_from_redis():
     return await redis_client.zrevrange('chatroom_ranking',0,-1, withscores=True)
+
