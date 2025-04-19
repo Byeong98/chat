@@ -54,6 +54,7 @@ class ChatTestConsumers(AsyncWebsocketConsumer):
             }
         )
         after_group_send = time.perf_counter()
+        
         print(f"접속자 리스트 접속 끝 : {after_group_send - after_accept:.4f} s")
 
         await self.send(text_data=json.dumps({
@@ -73,9 +74,9 @@ class ChatTestConsumers(AsyncWebsocketConsumer):
         await database_sync_to_async(chat_room.users.remove)(self.user)
 
         # 유저 수 확인 후 방 삭제
-        # users_count = await database_sync_to_async(chat_room.users.count)()
-        # if users_count == 0:
-        #     await self.delete_room(chat_room.id)
+        users_count = await database_sync_to_async(chat_room.users.count)()
+        if users_count == 0:
+            await self.delete_room(chat_room.id)
         
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 

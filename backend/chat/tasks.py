@@ -65,7 +65,6 @@ def send_room_list_celery():
 def remove_and_get_user(room_group_name,username,chat_room_id):
     channel_layer = get_channel_layer()
 
-    print("celery시작 ")
     #사용자 삭제
     users_count = async_to_sync(remove_user_to_redis)
 

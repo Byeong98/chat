@@ -7,6 +7,7 @@ from ..chat_redis import *
 from ..tasks import send_room_list_celery, remove_and_get_user
 from rest_framework_simplejwt.tokens import AccessToken
 import asyncio
+from django.core.cache import cache
 
 from asgiref.sync import sync_to_async
 from django.db import connection
@@ -30,7 +31,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         #같은 이름의 채팅방이 있는지 확인 및 생성
         self.chat_room = await self.get_or_create_room(self.room_id)
-        self.room_group_name = f"chat_room_id.{self.chat_room.id}"
+        self.room_group_name = f"chat_room_id.{self.chat_room['id']}"
         
         #Redis에 접속자 저장
         await add_user_to_redis(self.room_group_name, self.user.username)
@@ -43,7 +44,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print(f"채팅방 연결 완료: {after_accept - start:.4f} s")
         
         #채팅방 입장 전송
-        save_messages = await self.get_message(self.chat_room)
+        save_messages = await self.get_message(self.chat_room['id'])
         users_redis = await get_users_from_redis(self.room_group_name)
         await self.channel_layer.group_send(
             self.room_group_name,{
@@ -64,30 +65,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print(f"총 걸린 시간: {end - start:.4f} s")
         await print_query_count()
         #홈화면 갱신
-        # send_room_list_celery.delay()
+        send_room_list_celery.delay()
 
     #현제 채널 그룹에서 제거
     async def disconnect(self, close_code):
         
         # celery 비동기 실행
-        # remove_and_get_user.delay(self.room_group_name,
-        #                             self.user.username,
-        #                             self.chat_room.id
-        #                             )
+        remove_and_get_user.delay(self.room_group_name,
+                                    self.user.username,
+                                    self.chat_room['id']
+                                    )
 
-        users_redis = await remove_user_and_get_users_from_redis(self.room_group_name, self.user.username)
-
-        # await asyncio.gather(
-        #         self.channel_layer.group_send(
-        #             self.room_group_name,
-        #             {
-        #                 "type": "chat.update_users",
-        #                 "users": list(users_redis),
-        #                 "message": f'{self.user.username}님이 퇴장 했습니다.',
-        #             }
-        #         ),
-        #         self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        #     )
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     #메시지 보내는 로직
@@ -141,14 +129,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #같은 이름의 채팅방을 가져오거난 생성
     @database_sync_to_async
     def get_or_create_room(self,room_id):
-        # room = ChatRoom.objects.filter(id=room_id).first()
-        # if not room:
-        #     room = ChatRoom.objects.create(name=f"room-{room_id}")
-        # return room
-        
-        #test
-        room= ChatRoom.objects.get(id=room_id)
-        return room
+        cache_key = f"room:{room_id}"
+
+        # Redis에서 먼저 확인
+        cached_room = cache.get(cache_key)
+        if cached_room:
+            room_data = json.loads(cached_room)
+            return room_data
+
+        # DB 조회
+        room = ChatRoom.objects.get(id=room_id)
+        room_data = {
+            "id": room.id,
+            "name": room.name,
+        }
+        # Redis에 캐싱 
+        cache.set(cache_key, json.dumps(room_data), timeout=60 * 60) 
+        return room_data
     
     #해당채팅방에 있는 유저 확인하기
     @database_sync_to_async
@@ -180,8 +177,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
     
     #메시지 가져오기
     @database_sync_to_async
-    def get_message(self, room):
-        messages = Message.objects.filter(chat_room=room).order_by('add_date')
+    def get_message(self, room_id):
+        cache_key = f"room_mesage:{room_id}"
+
+        # Redis에서 먼저 확인
+        cached_room_masage = cache.get(cache_key)
+        if cached_room_masage:
+            room_masage = json.loads(cached_room_masage)
+            return room_masage
+
+        # DB에서 조회
+        messages = Message.objects.filter(chat_room__id=room_id).order_by('add_date')
 
         dict_messages =[]
         for message in messages:
@@ -191,4 +197,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 "message": message.content, 
                 "image": f"http://localhost:8000/media/{message.image}"
                 })
+            
+        # Redis에 캐싱 
+        cache.set(cache_key, json.dumps(dict_messages), timeout=60 * 60) 
         return dict_messages

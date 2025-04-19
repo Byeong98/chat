@@ -11,7 +11,10 @@ class WebSocketClient:
         self.ws = None
 
     def connect(self):
+        start_time = time.time()
         self.ws = websocket.create_connection(self.url)
+        end_time = time.time()
+        self.connect_time = end_time - start_time # 웹소켓 접속시간 
 
     def send(self, message):
         if self.ws:
@@ -30,6 +33,8 @@ class WebSocketClient:
 
 class ChatUser(HttpUser):
     wait_time = between(1, 3)
+    connection_times = []
+
 
     # 테스트 시작될 때 실행
     def on_start(self):
@@ -49,11 +54,16 @@ class ChatUser(HttpUser):
 
         # # 웹소켓 채팅방 입장
         if room_num not in self.websocket_clients:
-            ws_client = WebSocketClient(f'ws://127.0.0.1:8000/ws/chat/test/' + f'{room_num}/?token={token}')
+            ws_client = WebSocketClient(f'ws://{config('ALLOWED_HOSTS')}:8000/ws/chat/test/' + f'{room_num}/?token={token}')
             ws_client.connect()
+            self.connection_times.append(ws_client.connect_time)  
             self.websocket_clients[room_num] = ws_client
         else:
             ws_client = self.websocket_clients[room_num]
+    
+    def on_stop(self):
+        avg = sum(self.connection_times) / len(self.connection_times)
+        print(f"평균 접속 시간 : {avg:.4f}, 최대 접속 시간 : {max(self.connection_times):.4f}, 최소 접속 시간 : {min(self.connection_times):.4f}")
     # 테스트 한번 씩 실행하는 함수
     @task
     def print_user(self):
