@@ -1,0 +1,20 @@
+# docker-compose.yml
+
+services:
+  backend:
+    container_name: chat_backend
+    build:
+      context: .
+      dockerfile: backend/dockerfile
+    command: daphne config.asgi:application --port 8000 --bind 0.0.0.0 -v2
+    ports:
+      - "8000:8000"
+
+  frontend: 
+    container_name:  chat_frontend
+    build:
+      context: .
+      dockerfile: frontend/dockerfile
+    command: npm start
+    ports:
+      - "3000:3000"
