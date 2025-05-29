@@ -15,50 +15,50 @@ const Home = () => {
     const [roomList, setsRoomList] = useState([]);
     const [roomRank, setsRoomRank] = useState([]);
     const accessToken = localStorage.getItem('accessToken');
-    const { setUserId } = useContext(AuthContext);
+    // const { setUserId } = useContext(AuthContext);
 
 
-    // useEffect(() => {
-    //     const socket = new WebSocket(
-    //         `ws://127.0.0.1:8000/ws/chat/?token=${accessToken}`);
-    //     chatSocketRef.current = socket;
-
-    //     socket.onopen = () => {
-    //         console.log('연결 완료');
-    //     };
-
-    //     socket.onclose = () => {
-    //         console.log('연결 끝');
-    //     };
-
-    //     socket.onerror = () => {
-    //         console.log('연결 에러');
-    //     };
-
-    //     socket.onmessage = (event) => {
-    //         const newMessage = JSON.parse(event.data);
-    //         setsRoomList(newMessage.room_list);
-    //         setsRoomRank(newMessage.room_rank);
-    //     };
-
-    //     return () => {
-    //         socket.close(); // 컴포넌트 언마운트 시 WebSocket 닫기
-    //     };
-    // }, []);
-
-    // 데이터베이스 구현 방식
     useEffect(() => {
-        const fetchChatList = async () => {
-            try {
-                const response = await apiClient.get('/api/chat/list');
-                setsRoomList(response.data.chat_rooms);
-            } catch (error) {
-                alert("에러 발생");
-            }
+        const socket = new WebSocket(
+            `ws://127.0.0.1:8000/ws/chat/?token=${accessToken}`);
+        chatSocketRef.current = socket;
+
+        socket.onopen = () => {
+            console.log('연결 완료');
         };
 
-        fetchChatList();
+        socket.onclose = () => {
+            console.log('연결 끝');
+        };
+
+        socket.onerror = () => {
+            console.log('연결 에러');
+        };
+
+        socket.onmessage = (event) => {
+            const newMessage = JSON.parse(event.data);
+            setsRoomList(newMessage.room_list);
+            setsRoomRank(newMessage.room_rank);
+        };
+
+        return () => {
+            socket.close(); // 컴포넌트 언마운트 시 WebSocket 닫기
+        };
     }, []);
+
+    // 데이터베이스 구현 방식
+    // useEffect(() => {
+    //     const fetchChatList = async () => {
+    //         try {
+    //             const response = await apiClient.get('/api/chat/list');
+    //             setsRoomList(response.data.chat_rooms);
+    //         } catch (error) {
+    //             alert("에러 발생");
+    //         }
+    //     };
+
+    //     fetchChatList();
+    // }, []);
 
 
     const handelLogout = async () => {

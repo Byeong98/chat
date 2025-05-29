@@ -3,11 +3,13 @@ from config.celery import app
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from .models import ChatRoom
-import redis
+from redis import Redis
 from decouple import config
 from .chat_redis import *
 
-redis_client = redis.StrictRedis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
+
+
+redis_client = Redis(host = config("REDIS_ADDRESS"),port= config("REDIS_PORT"),password=config("REDIS_PASSWORD"), db=0)
 
 #그룹에 보내는 메시지 비동기 처리
 @app.task()
@@ -18,8 +20,7 @@ def send_room_list_celery():
     room_list_db = ChatRoom.objects.all()
 
     #Redis에서 모든 접속자 가져오기
-    room_list_redis = async_to_sync(redis_client.zrevrange)('chatroom_ranking',0,-1, withscores=True)
-    print(room_list_redis)
+    room_list_redis = redis_client.zrevrange('chatroom_ranking',0,-1, withscores=True)
 
     #{chat_room_id : 접속자 수} 형식으로 변경 
     list_dict = { 

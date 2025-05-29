@@ -85,7 +85,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         image = text_data_json.get("image", None)
         
         #이미지 파일이 있는 경우 미리 저장됨
-        if not image:
+        if image is not None:
             await self.create_message(chat_room=self.chat_room,
                                         sender_user=self.user,  
                                         message=message,    
