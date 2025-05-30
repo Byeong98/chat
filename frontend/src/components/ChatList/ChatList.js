@@ -1,6 +1,5 @@
-import React,{useEffect, useState,} from 'react';
+import React from 'react';
 import styles from './ChatList.module.css'
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 

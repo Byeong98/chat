@@ -1,0 +1,11 @@
+# backend
+
+FROM python:3.13.2
+
+WORKDIR /app
+
+COPY ./backend .
+
+RUN pip install --upgrade pip 
+RUN pip install -r requirements.txt
+

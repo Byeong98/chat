@@ -1,0 +1,10 @@
+# frontend
+
+FROM node:22.11.0
+
+WORKDIR /app
+
+COPY ./frontend .
+
+RUN npm install
+
