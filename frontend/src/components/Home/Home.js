@@ -1,10 +1,10 @@
-import React, { useContext, useState, useRef, useEffect, } from 'react';
+import React, { useState, useRef, useEffect, } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatList from '../ChatList/ChatList';
 import ChatRank from '../ChatRank/ChatRank';
 import styles from './Home.module.css';
 import apiClient from '../../apiClient';
-import { AuthContext } from '../../AuthContext';
+
 
 
 const Home = () => {
@@ -15,7 +15,7 @@ const Home = () => {
     const [roomList, setsRoomList] = useState([]);
     const [roomRank, setsRoomRank] = useState([]);
     const accessToken = localStorage.getItem('accessToken');
-    // const { setUserId } = useContext(AuthContext);
+
 
 
     useEffect(() => {

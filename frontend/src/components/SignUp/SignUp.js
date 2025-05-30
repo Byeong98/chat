@@ -5,30 +5,11 @@ import axios from 'axios';
 
 const SignUp = () => {
     const navigate = useNavigate();
-
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    var csrftoken = getCookie('csrftoken');
-
     const [data, setData] = useState({
-        username: '',
-        email: '',
-        password: '',
+        'username': '',
+        'email': '',
+        'password': ''
     })
-
 
     const handleSignup = async () => {
         if (!data.username.trim()){

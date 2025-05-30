@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [config('ALLOWED_HOSTS'), "localhost"]
+ALLOWED_HOSTS = [config('ALLOWED_HOSTS'),'localhost' ]
 
 
 
@@ -115,22 +115,22 @@ CELERY_TASK_SERIALIZER = 'json'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 #mysql 적용 
-# DATABASES = {
-#     'default':  {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'chat_django_database',
-#         'USER' : 'root',
-#         'PASSWORD' : config('MYSQL_DEFAULT_PASSWORD'), 
-#         'HOST' : config('ALLOWED_HOSTS'),
-#         'PORT' : '3306',
-#     }
-#     }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "db.sqlite3",
+    'default':  {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'chat_MySQL',
+        'USER' : config('MYSQL_USER'),
+        'PASSWORD' : config('MYSQL_DEFAULT_PASSWORD'), 
+        'HOST' : config('MYSQL_HOSTS'),
+        'PORT' : '3306',
     }
-}
+    }
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": "db.sqlite3",
+#     }
+# }
 
 
 # Password validation
@@ -209,5 +209,4 @@ CORS_ORIGIN_WHITELIST = (
     # 'https://127.0.0.1:3000',
     # 'http://127.0.0.1:3000',
     'http://localhost:3000',
-    'http://140.245.75.185:3000',
 )
